@@ -142,6 +142,60 @@ class MotorAlgebra:
         return {"estado": "DETERMINADO", "sol": x, "log": "\n".join(log) + "\n\n✔ STATUS: Sistema Consistente Determinado."}
 
     @staticmethod
+    def cramer(A, b):
+        """Resuelve el sistema Ax = b utilizando la Regla de Cramer."""
+        m, n = len(A), len(A[0])
+        if m != n:
+            raise ValueError(f"La Regla de Cramer solo aplica a sistemas cuadrados (m = n). El sistema es de {m}x{n}.")
+
+        t_inicio = time.perf_counter()
+        log = ["╔════════════════════════════════════════════════════════════════════════╗",
+               f"║                  RESOLUCIÓN POR REGLA DE CRAMER ({n}x{n})              ║",
+               "╚════════════════════════════════════════════════════════════════════════╝\n"]
+
+        res_det_a = MotorAlgebra.determinante_lu(A, mostrar_pasos=False)
+        det_A = res_det_a["determinante"]
+
+        log.append(f"▶ PASO 1: Determinante de la Matriz del Sistema det(A):")
+        log.append(f"   det(A) = {det_A:.4f}\n")
+
+        if abs(det_A) < 1e-9:
+            t_fin = time.perf_counter()
+            tiempo = t_fin - t_inicio
+            info_ram = MotorAlgebra.obtener_uso_ram()
+            log.append("❌ NO SE PUEDE APLICAR CRAMER: det(A) = 0.")
+            log.append("   El sistema no tiene solución única (es inconsistente o indeterminado).")
+            log.append(f"\n ⏱ TIEMPO: {tiempo:.6f} s | 📊 {info_ram}")
+            return {"estado": "NO_SINGULAR_REQUERIDO", "sol": None, "log": "\n".join(log)}
+
+        sol = []
+        log.append("▶ PASO 2: Cálculo de Determinantes Modificados det(Aᵢ) y Variables xᵢ:")
+
+        for j in range(n):
+            A_i = [[A[r][c] for c in range(n)] for r in range(n)]
+            for r in range(n):
+                A_i[r][j] = b[r]
+
+            det_Ai = MotorAlgebra.determinante_lu(A_i, mostrar_pasos=False)["determinante"]
+            x_i = det_Ai / det_A
+            sol.append(x_i)
+
+            log.append(f"\n   • Variable x{j+1}:")
+            log.append(f"     det(A_{j+1}) = {det_Ai:.4f}")
+            log.append(f"     x{j+1} = det(A_{j+1}) / det(A) = {det_Ai:.4f} / {det_A:.4f} = {x_i:.4f}")
+
+        t_fin = time.perf_counter()
+        tiempo_total = t_fin - t_inicio
+        info_ram_fin = MotorAlgebra.obtener_uso_ram()
+
+        log.append("\n╔════════════════════════════════════════════════════════════════════════╗")
+        log.append("║                   SISTEMA RESUELTO CON ÉXITO                           ║")
+        log.append("╚════════════════════════════════════════════════════════════════════════╝")
+        log.append(f"\n ⏱ TIEMPO: {tiempo_total:.6f} s ({tiempo_total * 1000:.3f} ms) | 📊 {info_ram_fin}")
+
+        return {"estado": "DETERMINADO", "sol": sol, "log": "\n".join(log)}
+
+    @staticmethod
     def inversa_gauss_jordan(A, mostrar_pasos=True):
         """Calcula la inversa por Gauss-Jordan con opción de mostrar paso a paso y comprobación A * A^-1 = I."""
         n = len(A)
@@ -380,6 +434,83 @@ class MotorAlgebra:
                 log.append(f"   • Elemento a₁,{j+1} = {A[0][j]:.2f} | Signo ({signo_str}) | Menor M₁,{j+1} = {sub_det:.4f}")
 
         det = recur_det(A)
+        t_fin = time.perf_counter()
+        tiempo_total = t_fin - t_inicio
+        info_ram_fin = MotorAlgebra.obtener_uso_ram()
+
+        log.append("\n╔════════════════════════════════════════════════════════════════════════╗")
+        log.append(f"║                   RESULTADO FINAL: det(A) = {det:10.4f}                 ║")
+        log.append("╚════════════════════════════════════════════════════════════════════════╝")
+
+        if abs(det) > 1e-9:
+            log.append(" ✔ PROPIEDAD: Matriz NO SINGULAR (INVERTIBLE).")
+        else:
+            log.append(" ❌ PROPIEDAD: Matriz SINGULAR (NO INVERTIBLE).")
+
+        log.append(f"\n ⏱ TIEMPO: {tiempo_total:.6f} s ({tiempo_total * 1000:.3f} ms) | 📊 {info_ram_fin}")
+        return {"determinante": det, "invertible": abs(det) > 1e-9, "log": "\n".join(log)}
+
+    @staticmethod
+    def determinante_sarrus(A, mostrar_pasos=True):
+        """Calcula el determinante aplicando la Regla de Sarrus (Solo para n = 2 y n = 3)."""
+        n = len(A)
+        if n not in (2, 3):
+            raise ValueError(f"La Regla de Sarrus no es aplicable para dimensiones {n}x{n}. "
+                             f"Solo aplica a matrices 2x2 y 3x3.")
+
+        t_inicio = time.perf_counter()
+        log = ["╔════════════════════════════════════════════════════════════════════════╗",
+               f"║             DETERMINANTE POR REGLA DE SARRUS — DET(A) ({n}x{n})          ║",
+               "╚════════════════════════════════════════════════════════════════════════╝"]
+
+        if n == 2:
+            p1 = A[0][0] * A[1][1]
+            p2 = A[0][1] * A[1][0]
+            det = p1 - p2
+
+            if mostrar_pasos:
+                log.append("\n▶ MATRIZ 2x2:")
+                log.append(f"   │ {A[0][0]:8.2f}  {A[0][1]:8.2f} │")
+                log.append(f"   │ {A[1][0]:8.2f}  {A[1][1]:8.2f} │")
+                log.append("\n▶ DIAGONALES:")
+                log.append(f"   • Diagonal Principal (+):  ({A[0][0]:.2f}) × ({A[1][1]:.2f}) = {p1:.4f}")
+                log.append(f"   • Diagonal Secundaria (-): ({A[0][1]:.2f}) × ({A[1][0]:.2f}) = {p2:.4f}")
+                log.append(f"\n▶ CÁLCULO: ({p1:.4f}) - ({p2:.4f})")
+
+        elif n == 3:
+            d1 = A[0][0] * A[1][1] * A[2][2]
+            d2 = A[0][1] * A[1][2] * A[2][0]
+            d3 = A[0][2] * A[1][0] * A[2][1]
+            sum_pos = d1 + d2 + d3
+
+            s1 = A[0][2] * A[1][1] * A[2][0]
+            s2 = A[0][0] * A[1][2] * A[2][1]
+            s3 = A[0][1] * A[1][0] * A[2][2]
+            sum_neg = s1 + s2 + s3
+
+            det = sum_pos - sum_neg
+
+            if mostrar_pasos:
+                log.append("\n▶ EXTENSIÓN DE MATRIZ (REGLA DE SARRUS):")
+                ext = A + [A[0], A[1]]
+                for fila in ext:
+                    log.append("   │ " + "  ".join(f"{v:8.2f}" for v in fila) + " │")
+
+                log.append("\n▶ DIAGONALES PRINCIPALES (Suma de Productos Positivos):")
+                log.append(f"   • d₁ = ({A[0][0]:.2f}) × ({A[1][1]:.2f}) × ({A[2][2]:.2f}) = {d1:.4f}")
+                log.append(f"   • d₂ = ({A[0][1]:.2f}) × ({A[1][2]:.2f}) × ({A[2][0]:.2f}) = {d2:.4f}")
+                log.append(f"   • d₃ = ({A[0][2]:.2f}) × ({A[1][0]:.2f}) × ({A[2][1]:.2f}) = {d3:.4f}")
+                log.append(f"   ➜ Σ(Diag Positivas) = {sum_pos:.4f}")
+
+                log.append("\n▶ DIAGONALES SECUNDARIAS (Suma de Productos Negativos):")
+                log.append(f"   • s₁ = ({A[0][2]:.2f}) × ({A[1][1]:.2f}) × ({A[2][0]:.2f}) = {s1:.4f}")
+                log.append(f"   • s₂ = ({A[0][0]:.2f}) × ({A[1][2]:.2f}) × ({A[2][1]:.2f}) = {s2:.4f}")
+                log.append(f"   • s₃ = ({A[0][1]:.2f}) × ({A[1][0]:.2f}) × ({A[2][2]:.2f}) = {s3:.4f}")
+                log.append(f"   ➜ Σ(Diag Negativas) = {sum_neg:.4f}")
+
+                log.append(f"\n▶ CÁLCULO FINAL: det(A) = Σ(Positivas) - Σ(Negativas)")
+                log.append(f"   det(A) = ({sum_pos:.4f}) - ({sum_neg:.4f})")
+
         t_fin = time.perf_counter()
         tiempo_total = t_fin - t_inicio
         info_ram_fin = MotorAlgebra.obtener_uso_ram()
@@ -714,7 +845,7 @@ class AplicacionLinearX(tk.Tk):
 
             elif op == "Combinación Lineal":
                 vecs = [[float(e.get()) for e in arr] for arr in self.inputs_vec["vecs"]]
-                b = [float(e.get()) for e in self.inputs_vec["b"]]
+                b = [float(e.get()) for e in self.inputs_b]
                 out = MotorAlgebra.combinacion_lineal(vecs, b)
                 self.txt_vec.insert(tk.END, out["log"] + "\n")
                 if out["estado"] == "DETERMINADO":
@@ -986,7 +1117,7 @@ class AplicacionLinearX(tk.Tk):
         self.ent_det_n.grid(row=0, column=1, padx=5, pady=5)
 
         ttk.Label(top, text="Método:").grid(row=0, column=2, padx=5, pady=5)
-        self.op_metodo_det = ttk.Combobox(top, values=["Descomposición LU", "Expansión por Cofactores"], state="readonly", width=22)
+        self.op_metodo_det = ttk.Combobox(top, values=["Descomposición LU", "Expansión por Cofactores", "Regla de Sarrus"], state="readonly", width=22)
         self.op_metodo_det.set("Descomposición LU")
         self.op_metodo_det.grid(row=0, column=3, padx=5, pady=5)
 
@@ -1019,12 +1150,12 @@ class AplicacionLinearX(tk.Tk):
 
     def actualizar_recomendacion_eficiencia(self, n):
         """Calcula e informa al usuario cuál es el método más eficiente antes de seleccionar/ejecutar."""
-        if n <= 3:
-            rec = f"💡 RECOMENDACIÓN DE EFICIENCIA: Para dimensión {n}x{n}, ambos métodos son muy rápidos. " \
-                  f"Cofactores es ideal para docencia; LU es óptimo estructuralmente."
+        if n in (2, 3):
+            rec = f"💡 RECOMENDACIÓN DE EFICIENCIA: Para dimensión {n}x{n}, la Regla de Sarrus y Cofactores son " \
+                  f"los métodos manuales más intuitivos. LU es óptimo a nivel computacional."
         else:
             rec = f"⚡ RECOMENDACIÓN DE EFICIENCIA: Para dimensión {n}x{n}, la DESCOMPOSICIÓN LU es la más eficiente O(n³). " \
-                  f"Evita Cofactores O(n!) para n ≥ 4 por alto costo computacional."
+                  f"Nota: Sarrus NO aplica para n ≥ 4, y Cofactores es muy lento O(n!)."
         self.lbl_recomendacion.config(text=rec)
 
     def limpiar_determinante(self):
@@ -1120,6 +1251,15 @@ class AplicacionLinearX(tk.Tk):
         try:
             n = int(self.ent_det_n.get())
 
+            metodo = self.op_metodo_det.get()
+            if metodo == "Regla de Sarrus" and n not in (2, 3):
+                messagebox.showwarning(
+                    "Método No Aplicable", 
+                    f"La Regla de Sarrus solo se puede aplicar a matrices 2x2 y 3x3.\n"
+                    f"Para dimensión {n}x{n}, por favor seleccione Descomposición LU o Cofactores."
+                )
+                return
+
             if self.matriz_det_cache and len(self.matriz_det_cache) == n:
                 A = self.matriz_det_cache
             elif self.inputs_det and n <= 20:
@@ -1127,13 +1267,14 @@ class AplicacionLinearX(tk.Tk):
             else:
                 A = [[round(random.uniform(-10, 10), 2) for _ in range(n)] for _ in range(n)]
 
-            metodo = self.op_metodo_det.get()
             mostrar_pasos = self.var_pasos_det.get()
 
             if metodo == "Descomposición LU":
                 res = MotorAlgebra.determinante_lu(A, mostrar_pasos=mostrar_pasos)
-            else:
+            elif metodo == "Expansión por Cofactores":
                 res = MotorAlgebra.determinante_cofactores(A, mostrar_pasos=mostrar_pasos)
+            elif metodo == "Regla de Sarrus":
+                res = MotorAlgebra.determinante_sarrus(A, mostrar_pasos=mostrar_pasos)
 
             self.txt_det.insert(tk.END, res["log"] + "\n")
 
@@ -1151,12 +1292,17 @@ class AplicacionLinearX(tk.Tk):
         ttk.Label(top, text="Columnas/Vars (n):").grid(row=0, column=2, padx=5)
         self.ec_n = self.crear_entry_adaptable(top, width=5, default_text="2"); self.ec_n.grid(row=0, column=3)
 
-        ttk.Button(top, text="Generar", command=self.dibujar_ecuaciones).grid(row=0, column=4, padx=10)
+        ttk.Label(top, text="Método:").grid(row=0, column=4, padx=5)
+        self.op_metodo_ec = ttk.Combobox(top, values=["Gauss-Jordan", "Regla de Cramer"], state="readonly", width=18)
+        self.op_metodo_ec.set("Gauss-Jordan")
+        self.op_metodo_ec.grid(row=0, column=5, padx=5)
+
+        ttk.Button(top, text="Generar", command=self.dibujar_ecuaciones).grid(row=0, column=6, padx=10)
 
         self.box_ec = ttk.Frame(self.tab_ec)
         self.box_ec.pack(fill="both", expand=True, padx=5, pady=5)
 
-        ttk.Button(self.tab_ec, text="Resolver (Gauss-Jordan)", command=self.calc_ecuaciones).pack(fill="x", padx=5, pady=2)
+        ttk.Button(self.tab_ec, text="Resolver Sistema", command=self.calc_ecuaciones).pack(fill="x", padx=5, pady=2)
         self.txt_ec = self.crear_scrolled_text(self.tab_ec, height=10)
         self.txt_ec.pack(fill="both", expand=True, padx=5, pady=5)
 
@@ -1200,11 +1346,17 @@ class AplicacionLinearX(tk.Tk):
             A = [[float(e.get()) for e in row] for row in self.inputs_A]
             b = [float(e.get()) for e in self.inputs_b]
 
-            res = MotorAlgebra.gauss_jordan(A, b)
+            metodo = self.op_metodo_ec.get()
+
+            if metodo == "Gauss-Jordan":
+                res = MotorAlgebra.gauss_jordan(A, b)
+            else:
+                res = MotorAlgebra.cramer(A, b)
+
             self.txt_ec.insert(tk.END, res["log"] + "\n")
 
-            if res["estado"] == "DETERMINADO":
-                self.txt_ec.insert(tk.END, "\n▶ VECTOR SOLUCIÓN:\n")
+            if res["estado"] == "DETERMINADO" and res["sol"] is not None:
+                self.txt_ec.insert(tk.END, "\n▶ VECTOR SOLUCIÓN FINAL:\n")
                 for i, v in enumerate(res["sol"]):
                     self.txt_ec.insert(tk.END, f"   • x{i+1} = {v:.4f}\n")
 
@@ -1242,7 +1394,7 @@ class AplicacionLinearX(tk.Tk):
                 self.txt_rom.insert(tk.END, f"║                     CONVERSIÓN DE ROMANO A ARÁBIGO                     ║\n")
                 self.txt_rom.insert(tk.END, f"╚════════════════════════════════════════════════════════════════════════╝\n\n")
                 self.txt_rom.insert(tk.END, f"   ▶ Numeral Romano: {val.upper()}\n")
-                self.txt_rom.insert(tk.END, f"   ▶ Valor Decimal:  {res}\n")    
+                self.txt_rom.insert(tk.END, f"   ▶ Valor Decimal:  {res}\n")
             else:
                 num = int(val)
                 res = MotorAlgebra.arabico_a_romano(num)
