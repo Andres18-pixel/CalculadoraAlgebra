@@ -108,15 +108,32 @@ def calcular_api(request):
         # --- BISECCIÓN ---
         elif modulo == 'biseccion':
             expr = data.get('expr', '')
-            a = float(data.get('a', 0))
-            b = float(data.get('b', 0))
-            tol = float(data.get('tol', 0.0001))
+            
+            raw_a = data.get('a')
+            raw_b = data.get('b')
+            raw_tol = data.get('tol', 0.0001)
+
+            a = float(raw_a) if raw_a not in [None, ''] else None
+            b = float(raw_b) if raw_b not in [None, ''] else None
+            tol = float(raw_tol) if raw_tol not in [None, ''] else 0.0001
+
+            if a is None or b is None:
+                grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, None, None, None)
+                return JsonResponse({
+                    'status': 'ok',
+                    'exito': False,
+                    'filas': [],
+                    'log': "ℹ️ Ingrese los valores iniciales 'a' y 'b' para calcular el método de bisección, o visualice la gráfica previa de la función.",
+                    'grafica': grafica_data
+                })
+
             out = MotorAlgebra.metodo_biseccion(expr, a, b, tol)
             
-            # Generar datos para la gráfica si el método converge con éxito
             grafica_data = None
             if out['exito']:
                 grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, a, b, out['raiz'])
+            else:
+                grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, a, b, None)
 
             return JsonResponse({
                 'status': 'ok', 

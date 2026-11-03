@@ -1,6 +1,7 @@
 import math
 import sys
 import psutil
+import re
 
 class MotorAlgebra:
 
@@ -56,12 +57,9 @@ class MotorAlgebra:
         if any(len(fila) != n for fila in A):
             raise ValueError("La matriz debe ser cuadrada.")
         
-        # Crear matriz aumentada [A | I]
         M = [row + [1 if i == j else 0 for j in range(n)] for i, row in enumerate(A)]
-        log = "Matriz aumentada inicial [A | I]:\n"
         
         for i in range(n):
-            # Pivoteo parcial
             max_el = abs(M[i][i])
             max_row = i
             for k in range(i + 1, n):
@@ -75,12 +73,10 @@ class MotorAlgebra:
             if max_row != i:
                 M[i], M[max_row] = M[max_row], M[i]
             
-            # Normalizar fila pivote
             pivote = M[i][i]
             for j in range(2 * n):
                 M[i][j] /= pivote
             
-            # Reducción de otras filas
             for k in range(n):
                 if k != i:
                     factor = M[k][i]
@@ -131,6 +127,25 @@ class MotorAlgebra:
         return {"estado": "ok", "sol": [1.0, 1.0], "log": "Sistema resuelto por Cramer."}
 
     @staticmethod
+    def limpiar_expresion_matematica(expr_str):
+        e = expr_str.replace("ln", "log") \
+                    .replace("^", "**") \
+                    .replace("sin", "math.sin") \
+                    .replace("cos", "math.cos") \
+                    .replace("tan", "math.tan") \
+                    .replace("sqrt", "math.sqrt") \
+                    .replace("exp", "math.exp") \
+                    .replace("log", "math.log") \
+                    .replace("pi", "math.pi") \
+                    .replace("e", "math.e")
+        
+        e = e.replace("X", "x")
+        e = re.sub(r'(\d)([a-zA-Z(])', r'\1*\2', e)
+        e = re.sub(r'(x)([a-zA-Z(])', r'\1*\2', e)
+        
+        return e
+
+    @staticmethod
     def metodo_biseccion(expr_str, a, b, tol=0.0001, max_iter=100):
         def f(x_val):
             dic_contexto = {
@@ -138,61 +153,76 @@ class MotorAlgebra:
                 "tan": math.tan, "exp": math.exp, "log": math.log, "sqrt": math.sqrt,
                 "pi": math.pi, "e": math.e
             }
-            expr_eval = expr_str.replace("^", "**")
+            expr_eval = MotorAlgebra.limpiar_expresion_matematica(expr_str)
             return float(eval(expr_eval, {"__builtins__": None}, dic_contexto))
 
-        fa = f(a)
-        fb = f(b)
-        if fa * fb > 0:
-            raise ValueError("f(a) y f(b) deben tener signos opuestos (Teorema de Bolzano).")
+        fa_val = f(a)
+        fb_val = f(b)
+        if fa_val * fb_val > 0:
+            raise ValueError(f"f(a)={fa_val:.4f} y f(b)={fb_val:.4f} deben tener signos opuestos (Teorema de Bolzano).")
 
         filas = []
-        log_txt = f"Función: f(x) = {expr_str}\nIntervalo: [{a}, {b}] | Tolerancia: {tol}\n\n"
-        log_txt += f"{'Iter (k)':<10} | {'a':<10} | {'b':<10} | {'c (Medio)':<10} | {'f(c)':<12} | {'Error':<10}\n"
-        log_txt += "-" * 75 + "\n"
+        log_txt = f"📊 MÉTODO DE BISECCIÓN — TABLA DE ITERACIONES\n"
+        log_txt += f"• Función: f(x) = {expr_str}\n"
+        log_txt += f"• Intervalo inicial: [{a}, {b}] | Tolerancia: {tol}\n" + "—" * 78 + "\n"
+        
+        log_txt += f"{'Iter':<5} | {'a':<7} | {'b':<7} | {'c':<9} | {'f(a)':<8} | {'f(b)':<8} | {'f(c)':<8} | {'Error':<8}\n"
+        log_txt += "—" * 78 + "\n"
 
-        c_ant = a
         raiz = a
         exito = False
+        k_final = 0
+        error_final = 0
 
         for k in range(1, max_iter + 1):
+            fa = f(a)
+            fb = f(b)
             c = (a + b) / 2.0
             fc = f(c)
-            error = abs(c - c_ant) if k > 1 else abs(b - a)
+            error = abs(fc)
+            k_final = k
+            error_final = error
 
             filas.append({"iter": k, "a": a, "b": b, "c": c, "fc": fc, "error": error})
-            log_txt += f"{k:<10} | {a:<10.5f} | {b:<10.5f} | {c:<10.5f} | {fc:<12.5f} | {error:<10.5f}\n"
+            log_txt += f"{k:<5} | {a:<7.4f} | {b:<7.4f} | {c:<9.4f} | {fa:<8.4f} | {fb:<8.4f} | {fc:<8.4f} | {error:<8.4f}\n"
 
-            if abs(fc) < tol or error < tol:
+            if abs(fc) < tol or abs(b - a) / 2.0 < tol:
                 raiz = c
                 exito = True
                 break
 
-            if f(a) * fc < 0:
+            if fa * fc < 0:
                 b = c
             else:
                 a = c
-            c_ant = c
+
+        log_txt += "—" * 78 + "\n"
+        log_txt += f"🎯 RESULTADO FINAL:\n"
+        log_txt += f"• Raíz Aproximada (c) : {raiz:.6f}\n"
+        log_txt += f"• Margen de Error (|f(c)|) : {error_final:.6f}\n"
+        log_txt += f"• Total de Iteraciones  : {k_final}\n"
 
         return {"exito": exito, "raiz": raiz, "filas": filas, "log": log_txt}
 
     @staticmethod
-    def generar_grafica_biseccion(expr_str, a_orig, b_orig, raiz):
-        """Genera los puntos (x, y) para graficar la función y la raíz en la web."""
+    def generar_grafica_biseccion(expr_str, a_orig=None, b_orig=None, raiz=None):
         def f(x_val):
             dic_contexto = {
                 "x": x_val, "math": math, "sin": math.sin, "cos": math.cos,
                 "tan": math.tan, "exp": math.exp, "log": math.log, "sqrt": math.sqrt,
                 "pi": math.pi, "e": math.e
             }
-            expr_eval = expr_str.replace("^", "**")
+            expr_eval = MotorAlgebra.limpiar_expresion_matematica(expr_str)
             return float(eval(expr_eval, {"__builtins__": None}, dic_contexto))
 
-        margen = (b_orig - a_orig) * 0.5 if b_orig != a_orig else 1.0
-        x_min = a_orig - margen
-        x_max = b_orig + margen
+        if a_orig is None or b_orig is None or (a_orig == 0 and b_orig == 0):
+            x_min, x_max = -5.0, 5.0
+        else:
+            amplitud = abs(b_orig - a_orig) if b_orig != a_orig else 2.0
+            x_min = min(a_orig, b_orig) - amplitud * 1.5
+            x_max = max(a_orig, b_orig) + amplitud * 1.5
 
-        puntos = 40
+        puntos = 60
         paso = (x_max - x_min) / puntos
 
         coords = []
@@ -206,9 +236,11 @@ class MotorAlgebra:
                 pass
             current_x += paso
 
+        raiz_dict = {"x": round(raiz, 4), "y": 0.0} if raiz is not None else None
+
         return {
             "puntos": coords,
-            "raiz": {"x": round(raiz, 4), "y": 0.0}
+            "raiz": raiz_dict
         }
 
     @staticmethod
