@@ -112,7 +112,19 @@ def calcular_api(request):
             b = float(data.get('b', 0))
             tol = float(data.get('tol', 0.0001))
             out = MotorAlgebra.metodo_biseccion(expr, a, b, tol)
-            return JsonResponse({'status': 'ok', 'exito': out['exito'], 'filas': out['filas'], 'log': out['log']})
+            
+            # Generar datos para la gráfica si el método converge con éxito
+            grafica_data = None
+            if out['exito']:
+                grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, a, b, out['raiz'])
+
+            return JsonResponse({
+                'status': 'ok', 
+                'exito': out['exito'], 
+                'filas': out['filas'], 
+                'log': out['log'],
+                'grafica': grafica_data
+            })
 
         # --- ROMANOS ---
         elif modulo == 'romanos':

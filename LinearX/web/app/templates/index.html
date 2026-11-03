@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LINEARX Web — Motor de Álgebra Lineal</title>
-    <!-- Tailwind CSS para un diseño web moderno y profesional -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -45,7 +47,7 @@
         <button onclick="switchTab('romanos')" class="tab-btn py-3 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap">Números Romanos</button>
     </nav>
 
-    <!-- Contenedor Principal de Módulos -->
+    <!-- Contenedor Principal -->
     <main class="flex-1 p-6 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         <!-- Panel de Configuración e Inputs -->
@@ -53,7 +55,7 @@
             <h2 id="panel-title" class="text-lg font-bold mb-4 border-b border-darkBorder pb-2 text-blue-400">Módulo Vectores</h2>
             
             <div id="module-inputs" class="space-y-4 flex-1">
-                <!-- Se inyecta dinámicamente según la pestaña -->
+                <!-- Se inyecta dinámicamente -->
             </div>
 
             <button onclick="ejecutarCalculo()" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition shadow">
@@ -61,29 +63,35 @@
             </button>
         </div>
 
-        <!-- Panel de Resultados y Logs -->
-        <div class="bg-darkPanel border border-darkBorder rounded-xl p-5 flex flex-col shadow-lg">
-            <div class="flex justify-between items-center mb-4 border-b border-darkBorder pb-2">
-                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider">Consola de Resultados y Pasos</h3>
-                <button onclick="copiarResultado()" class="text-xs bg-darkBorder hover:bg-gray-700 px-3 py-1 rounded transition">📋 Copiar</button>
+        <!-- Panel de Resultados, Gráficos y Logs -->
+        <div class="bg-darkPanel border border-darkBorder rounded-xl p-5 flex flex-col shadow-lg space-y-4">
+            <div class="flex justify-between items-center border-b border-darkBorder pb-2">
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider">Consola y Visualización</h3>
+                <button onclick="copiarResultado()" class="text-xs bg-darkBorder hover:bg-gray-700 px-3 py-1 rounded transition">📋 Copiar Consola</button>
             </div>
             
-            <div id="result-container" class="flex-1 bg-black/40 border border-darkBorder rounded-lg p-4 font-mono text-xs overflow-auto max-h-[500px] whitespace-pre-wrap text-green-400">
+            <!-- Canvas de Gráfica (Solo visible en Bisección) -->
+            <div id="chart-wrapper" class="hidden bg-darkBg border border-darkBorder rounded-lg p-3 relative h-64">
+                <canvas id="biseccionChart"></canvas>
+            </div>
+
+            <div id="result-container" class="flex-1 bg-black/40 border border-darkBorder rounded-lg p-4 font-mono text-xs overflow-auto max-h-[350px] whitespace-pre-wrap text-green-400">
                 Esperando ejecución de datos...
             </div>
         </div>
 
     </main>
 
-    <!-- Footer / Barra de Estado RAM -->
+    <!-- Footer -->
     <footer class="bg-darkPanel border-t border-darkBorder px-6 py-2.5 text-xs text-gray-400 flex justify-between items-center">
         <span>LINEARX Backend Core Activo (Python Engine)</span>
         <span id="ram-status" class="text-blue-400">📊 RAM del Sistema: Monitoreo activo</span>
     </footer>
 
-    <!-- Lógica de Control Frontend -->
+    <!-- Lógica Frontend -->
     <script>
         let currentTab = 'vectores';
+        let myChart = null;
 
         function switchTab(tab) {
             currentTab = tab;
@@ -93,6 +101,15 @@
             });
             event.target.classList.remove('border-transparent', 'text-gray-400');
             event.target.classList.add('border-blue-500', 'text-blue-400');
+
+            // Mostrar u ocultar contenedor de gráfico
+            const chartWrapper = document.getElementById('chart-wrapper');
+            if (tab === 'biseccion') {
+                chartWrapper.classList.remove('hidden');
+            } else {
+                chartWrapper.classList.add('hidden');
+                if (myChart) { myChart.destroy(); myChart = null; }
+            }
 
             renderInputs();
         }
@@ -105,61 +122,45 @@
             if (currentTab === 'vectores') {
                 title.innerText = "Módulo Vectores";
                 container.innerHTML = `
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Operación:</label>
-                        <select id="vec-op" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm">
-                            <option value="suma">Suma (u + v)</option>
-                            <option value="resta">Resta (u - v)</option>
-                            <option value="escalar">Escalar (k · v)</option>
-                        </select>
-                    </div>
+                    <div><label class="block text-xs font-semibold mb-1">Operación:</label>
+                    <select id="vec-op" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm">
+                        <option value="suma">Suma (u + v)</option><option value="resta">Resta (u - v)</option><option value="escalar">Escalar (k · v)</option>
+                    </select></div>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="block text-xs mb-1">Vector u (coma separados):</label><input type="text" id="vec-u" value="1, 2, 3" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm"></div>
+                        <div><label class="block text-xs mb-1">Vector u:</label><input type="text" id="vec-u" value="1, 2, 3" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm"></div>
                         <div><label class="block text-xs mb-1">Vector v / k:</label><input type="text" id="vec-v" value="4, 5, 6" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm"></div>
                     </div>`;
             } else if (currentTab === 'matrices') {
                 title.innerText = "Módulo Matrices";
                 container.innerHTML = `
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Operación:</label>
-                        <select id="mat-op" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm">
-                            <option value="suma">Suma (A + B)</option>
-                            <option value="resta">Resta (A - B)</option>
-                            <option value="multiplicacion">Multiplicación (A · B)</option>
-                            <option value="escalar">Escalar (k · A)</option>
-                        </select>
-                    </div>
-                    <div><label class="block text-xs mb-1">Matriz A (filas separadas por ;):</label><textarea id="mat-a" rows="3" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm font-mono">1,2; 3,4</textarea></div>
-                    <div><label class="block text-xs mb-1">Matriz B / Escalar k:</label><textarea id="mat-b" rows="3" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm font-mono">5,6; 7,8</textarea></div>`;
+                    <div><label class="block text-xs font-semibold mb-1">Operación:</label>
+                    <select id="mat-op" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm">
+                        <option value="suma">Suma (A + B)</option><option value="resta">Resta (A - B)</option><option value="multiplicacion">Multiplicación (A · B)</option><option value="escalar">Escalar (k · A)</option>
+                    </select></div>
+                    <div><label class="block text-xs mb-1">Matriz A (; filas):</label><textarea id="mat-a" rows="3" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm font-mono">1,2; 3,4</textarea></div>
+                    <div><label class="block text-xs mb-1">Matriz B / k:</label><textarea id="mat-b" rows="3" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm font-mono">5,6; 7,8</textarea></div>`;
             } else if (currentTab === 'inversa') {
                 title.innerText = "Inversa por Gauss-Jordan";
                 container.innerHTML = `
-                    <div><label class="block text-xs mb-1">Matriz Cuadrada A:</label><textarea id="inv-a" rows="4" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm font-mono">1,2,3; 0,1,4; 5,6,0</textarea></div>
-                    <div class="flex items-center space-x-2"><input type="checkbox" id="inv-pasos" checked class="rounded bg-darkBg border-darkBorder"> <label class="text-xs">Mostrar paso a paso detallado</label></div>`;
+                    <div><label class="block text-xs mb-1">Matriz A:</label><textarea id="inv-a" rows="4" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm font-mono">1,2,3; 0,1,4; 5,6,0</textarea></div>
+                    <div class="flex items-center space-x-2"><input type="checkbox" id="inv-pasos" checked class="rounded bg-darkBg border-darkBorder"> <label class="text-xs">Mostrar paso a paso</label></div>`;
             } else if (currentTab === 'determinantes') {
                 title.innerText = "Cálculo de Determinantes";
                 container.innerHTML = `
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Método:</label>
-                        <select id="det-metodo" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm">
-                            <option value="lu">Descomposición LU</option>
-                            <option value="cofactores">Expansión por Cofactores</option>
-                            <option value="sarrus">Regla de Sarrus (2x2 o 3x3)</option>
-                        </select>
-                    </div>
+                    <div><label class="block text-xs font-semibold mb-1">Método:</label>
+                    <select id="det-metodo" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm">
+                        <option value="lu">Descomposición LU</option><option value="cofactores">Cofactores</option><option value="sarrus">Sarrus (2x2 o 3x3)</option>
+                    </select></div>
                     <div><label class="block text-xs mb-1">Matriz A:</label><textarea id="det-a" rows="4" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm font-mono">2,1,3; 1,0,2; 4,1,5</textarea></div>`;
             } else if (currentTab === 'ecuaciones') {
                 title.innerText = "Sistemas de Ecuaciones (Ax = b)";
                 container.innerHTML = `
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Método:</label>
-                        <select id="ec-metodo" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm">
-                            <option value="gauss">Gauss-Jordan</option>
-                            <option value="cramer">Regla de Cramer</option>
-                        </select>
-                    </div>
-                    <div><label class="block text-xs mb-1">Matriz Coeficientes A:</label><textarea id="ec-a" rows="3" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm font-mono">2,1; 1,3</textarea></div>
-                    <div><label class="block text-xs mb-1">Vector Independiente b:</label><input type="text" id="ec-b" value="5, 7" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm"></div>`;
+                    <div><label class="block text-xs font-semibold mb-1">Método:</label>
+                    <select id="ec-metodo" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm">
+                        <option value="gauss">Gauss-Jordan</option><option value="cramer">Cramer</option>
+                    </select></div>
+                    <div><label class="block text-xs mb-1">Matriz A:</label><textarea id="ec-a" rows="3" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm font-mono">2,1; 1,3</textarea></div>
+                    <div><label class="block text-xs mb-1">Vector b:</label><input type="text" id="ec-b" value="5, 7" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm"></div>`;
             } else if (currentTab === 'biseccion') {
                 title.innerText = "Método Numérico de Bisección";
                 container.innerHTML = `
@@ -170,16 +171,13 @@
                         <div><label class="block text-xs mb-1">Tolerancia:</label><input type="text" id="bis-tol" value="0.0001" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm"></div>
                     </div>`;
             } else if (currentTab === 'romanos') {
-                title.innerText = "Convertidor de Números Romanos";
+                title.innerText = "Números Romanos";
                 container.innerHTML = `
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Modo:</label>
-                        <select id="rom-modo" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm">
-                            <option value="r2a">Romano a Arábigo</option>
-                            <option value="a2r">Arábigo a Romano</option>
-                        </select>
-                    </div>
-                    <div><label class="block text-xs mb-1">Valor de entrada:</label><input type="text" id="rom-val" value="XIV" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm"></div>`;
+                    <div><label class="block text-xs font-semibold mb-1">Modo:</label>
+                    <select id="rom-modo" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm">
+                        <option value="r2a">Romano a Arábigo</option><option value="a2r">Arábigo a Romano</option>
+                    </select></div>
+                    <div><label class="block text-xs mb-1">Valor:</label><input type="text" id="rom-val" value="XIV" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm"></div>`;
             }
         }
 
@@ -230,25 +228,65 @@
                 const box = document.getElementById('result-container');
                 if (res.status === 'ok') {
                     box.innerText = res.log || JSON.stringify(res.resultado || res, null, 2);
+
+                    // Si es bisección y hay datos gráficos, renderizar gráfica
+                    if (currentTab === 'biseccion' && res.grafica) {
+                        renderizarGraficaBiseccion(res.grafica);
+                    }
                 } else {
                     box.innerText = "❌ ERROR: " + res.message;
                 }
             } catch (err) {
-                document.getElementById('result-container').innerText = "❌ Error de conexión con el servidor: " + err;
+                document.getElementById('result-container').innerText = "❌ Error de conexión: " + err;
             }
         }
 
+        function renderizarGraficaBiseccion(dataGrafica) {
+            const ctx = document.getElementById('biseccionChart').getContext('2d');
+            if (myChart) { myChart.destroy(); }
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: 'f(x)',
+                            data: dataGrafica.puntos,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 1,
+                            tension: 0.2
+                        },
+                        {
+                            label: 'Raíz Hallada',
+                            data: [dataGrafica.raiz],
+                            backgroundColor: '#ef4444',
+                            borderColor: '#ef4444',
+                            pointRadius: 6,
+                            pointStyle: 'star'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { type: 'linear', position: 'bottom', grid: { color: '#333' }, ticks: { color: '#aaa' } },
+                        y: { grid: { color: '#333' }, ticks: { color: '#aaa' } }
+                    },
+                    plugins: { legend: { labels: { color: '#fff', font: { size: 10 } } } }
+                }
+            });
+        }
+
         function copiarResultado() {
-            const text = document.getElementById('result-container').innerText;
-            navigator.clipboard.writeText(text);
-            alert("Resultado copiado al portapapeles.");
+            navigator.clipboard.writeText(document.getElementById('result-container').innerText);
+            alert("Consola copiada.");
         }
 
-        function toggleTheme() {
-            document.documentElement.classList.toggle('dark');
-        }
+        function toggleTheme() { document.documentElement.classList.toggle('dark'); }
 
-        // Inicializar inputs por defecto
         renderInputs();
     </script>
 </body>
