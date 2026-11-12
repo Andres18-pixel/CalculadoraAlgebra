@@ -5,7 +5,6 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-# Añadimos la carpeta raíz del proyecto para importar el motor matemático (core/motor.py)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if BASE_DIR not in sys.path:
     sys.path.append(BASE_DIR)
@@ -14,21 +13,18 @@ from core.motor import MotorAlgebra
 
 
 def index(request):
-    """Renderiza la interfaz principal del Dashboard Web."""
     return render(request, 'index.html')
 
 
 @csrf_exempt
 def calcular_api(request):
-    """Endpoint único que procesa todas las operaciones matemáticas recibidas desde la web."""
     if request.method != 'POST':
-        return JsonResponse({'status': 'error', 'message': 'Método no permitido'}, status=405)
+        return JsonResponse({'status': 'error', 'message': 'Metodo no permitido'}, status=405)
 
     try:
         data = json.loads(request.body.decode('utf-8'))
         modulo = data.get('modulo')
 
-        # --- VECTORES ---
         if modulo == 'vectores':
             op = data.get('op')
             if op in ['suma', 'resta']:
@@ -47,7 +43,6 @@ def calcular_api(request):
                 out = MotorAlgebra.combinacion_lineal(vecs, b)
                 return JsonResponse({'status': 'ok', 'log': out['log'], 'sol': out.get('sol')})
 
-        # --- MATRICES ---
         elif modulo == 'matrices':
             op = data.get('op')
             A = [[float(x) for x in fila] for fila in data.get('A', [])]
@@ -64,7 +59,6 @@ def calcular_api(request):
                     res = MotorAlgebra.multiplicar_matrices(A, B)
             return JsonResponse({'status': 'ok', 'resultado': res})
 
-        # --- INVERSA ---
         elif modulo == 'inversa':
             A = [[float(x) for x in fila] for fila in data.get('A', [])]
             pasos = data.get('pasos', True)
@@ -77,7 +71,6 @@ def calcular_api(request):
                 'log': out['log']
             })
 
-        # --- DETERMINANTES ---
         elif modulo == 'determinantes':
             A = [[float(x) for x in fila] for fila in data.get('A', [])]
             metodo = data.get('metodo', 'lu')
@@ -92,7 +85,6 @@ def calcular_api(request):
             
             return JsonResponse({'status': 'ok', 'determinante': out['determinante'], 'log': out['log']})
 
-        # --- ECUACIONES ---
         elif modulo == 'ecuaciones':
             A = [[float(x) for x in fila] for fila in data.get('A', [])]
             b = [float(x) for x in data.get('b', [])]
@@ -105,35 +97,48 @@ def calcular_api(request):
             
             return JsonResponse({'status': 'ok', 'estado': out['estado'], 'sol': out.get('sol'), 'log': out['log']})
 
-        # --- BISECCIÓN ---
         elif modulo == 'biseccion':
             expr = data.get('expr', '')
-            
-            raw_a = data.get('a')
-            raw_b = data.get('b')
+            submetodo = data.get('submetodo', 'biseccion')
             raw_tol = data.get('tol', 0.0001)
-
-            a = float(raw_a) if raw_a not in [None, ''] else None
-            b = float(raw_b) if raw_b not in [None, ''] else None
             tol = float(raw_tol) if raw_tol not in [None, ''] else 0.0001
 
-            if a is None or b is None:
-                grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, None, None, None)
-                return JsonResponse({
-                    'status': 'ok',
-                    'exito': False,
-                    'filas': [],
-                    'log': "ℹ️ Ingrese los valores iniciales 'a' y 'b' para calcular el método de bisección, o visualice la gráfica previa de la función.",
-                    'grafica': grafica_data
-                })
+            if submetodo == 'newton':
+                raw_x0 = data.get('x0')
+                if raw_x0 in [None, '']:
+                    grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, None, None, None)
+                    return JsonResponse({'status': 'ok', 'exito': False, 'filas': [], 'log': "Ingrese el punto inicial x0.", 'grafica': grafica_data})
+                x0 = float(raw_x0)
+                out = MotorAlgebra.metodo_newton_raphson(expr, x0, tol)
+                grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, x0 - 2, x0 + 2, out['raiz'] if out['exito'] else None)
 
-            out = MotorAlgebra.metodo_biseccion(expr, a, b, tol)
-            
-            grafica_data = None
-            if out['exito']:
-                grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, a, b, out['raiz'])
+            elif submetodo == 'secante':
+                raw_x0 = data.get('x0')
+                raw_x1 = data.get('x1')
+                if raw_x0 in [None, ''] or raw_x1 in [None, '']:
+                    grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, None, None, None)
+                    return JsonResponse({'status': 'ok', 'exito': False, 'filas': [], 'log': "Ingrese x0 y x1 iniciales.", 'grafica': grafica_data})
+                x0 = float(raw_x0)
+                x1 = float(raw_x1)
+                out = MotorAlgebra.metodo_secante(expr, x0, x1, tol)
+                grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, min(x0, x1) - 2, max(x0, x1) + 2, out['raiz'] if out['exito'] else None)
+
             else:
-                grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, a, b, None)
+                raw_a = data.get('a')
+                raw_b = data.get('b')
+                a = float(raw_a) if raw_a not in [None, ''] else None
+                b = float(raw_b) if raw_b not in [None, ''] else None
+
+                if a is None or b is None:
+                    grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, None, None, None)
+                    return JsonResponse({'status': 'ok', 'exito': False, 'filas': [], 'log': "Ingrese 'a' y 'b'.", 'grafica': grafica_data})
+
+                if submetodo == 'regla_falsa':
+                    out = MotorAlgebra.metodo_regla_falsa(expr, a, b, tol)
+                else:
+                    out = MotorAlgebra.metodo_biseccion(expr, a, b, tol)
+                
+                grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, a, b, out['raiz'] if out['exito'] else None)
 
             return JsonResponse({
                 'status': 'ok', 
@@ -143,7 +148,6 @@ def calcular_api(request):
                 'grafica': grafica_data
             })
 
-        # --- ROMANOS ---
         elif modulo == 'romanos':
             modo = data.get('modo', 'r2a')
             val = data.get('val', '').strip()
@@ -153,7 +157,7 @@ def calcular_api(request):
                 res = MotorAlgebra.arabico_a_romano(int(val))
             return JsonResponse({'status': 'ok', 'resultado': res})
 
-        return JsonResponse({'status': 'error', 'message': 'Módulo no válido'}, status=400)
+        return JsonResponse({'status': 'error', 'message': 'Modulo no valido'}, status=400)
 
     except Exception as err:
         return JsonResponse({'status': 'error', 'message': str(err)}, status=400)

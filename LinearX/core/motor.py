@@ -8,13 +8,13 @@ class MotorAlgebra:
     @staticmethod
     def sumar_vectores(u, v):
         if len(u) != len(v):
-            raise ValueError("Los vectores deben tener la misma dimensión.")
+            raise ValueError("Los vectores deben tener la misma dimension.")
         return [a + b for a, b in zip(u, v)]
 
     @staticmethod
     def restar_vectores(u, v):
         if len(u) != len(v):
-            raise ValueError("Los vectores deben tener la misma dimensión.")
+            raise ValueError("Los vectores deben tener la misma dimension.")
         return [a - b for a, b in zip(u, v)]
 
     @staticmethod
@@ -23,7 +23,7 @@ class MotorAlgebra:
 
     @staticmethod
     def combinacion_lineal(vecs, b):
-        log = "Calculando combinación lineal...\n"
+        log = "Calculando combinacion lineal...\n"
         return {"log": log, "sol": None}
 
     @staticmethod
@@ -43,7 +43,7 @@ class MotorAlgebra:
         filas_a, cols_a = len(A), len(A[0])
         filas_b, cols_b = len(B), len(B[0])
         if cols_a != filas_b:
-            raise ValueError("El número de columnas de A debe ser igual al número de filas de B.")
+            raise ValueError("El numero de columnas de A debe ser igual al numero de filas de B.")
         resultado = [[sum(A[i][k] * B[k][j] for k in range(cols_a)) for j in range(cols_b)] for i in range(filas_a)]
         return resultado
 
@@ -146,28 +146,28 @@ class MotorAlgebra:
         return e
 
     @staticmethod
-    def metodo_biseccion(expr_str, a, b, tol=0.0001, max_iter=100):
-        def f(x_val):
-            dic_contexto = {
-                "x": x_val, "math": math, "sin": math.sin, "cos": math.cos,
-                "tan": math.tan, "exp": math.exp, "log": math.log, "sqrt": math.sqrt,
-                "pi": math.pi, "e": math.e
-            }
-            expr_eval = MotorAlgebra.limpiar_expresion_matematica(expr_str)
-            return float(eval(expr_eval, {"__builtins__": None}, dic_contexto))
+    def evaluar_funcion(expr_str, x_val):
+        dic_contexto = {
+            "x": x_val, "math": math, "sin": math.sin, "cos": math.cos,
+            "tan": math.tan, "exp": math.exp, "log": math.log, "sqrt": math.sqrt,
+            "pi": math.pi, "e": math.e
+        }
+        expr_eval = MotorAlgebra.limpiar_expresion_matematica(expr_str)
+        return float(eval(expr_eval, {"__builtins__": None}, dic_contexto))
 
-        fa_val = f(a)
-        fb_val = f(b)
+    @staticmethod
+    def metodo_biseccion(expr_str, a, b, tol=0.0001, max_iter=100):
+        fa_val = MotorAlgebra.evaluar_funcion(expr_str, a)
+        fb_val = MotorAlgebra.evaluar_funcion(expr_str, b)
         if fa_val * fb_val > 0:
             raise ValueError(f"f(a)={fa_val:.4f} y f(b)={fb_val:.4f} deben tener signos opuestos (Teorema de Bolzano).")
 
         filas = []
-        log_txt = f"📊 MÉTODO DE BISECCIÓN — TABLA DE ITERACIONES\n"
-        log_txt += f"• Función: f(x) = {expr_str}\n"
-        log_txt += f"• Intervalo inicial: [{a}, {b}] | Tolerancia: {tol}\n" + "—" * 78 + "\n"
-        
+        log_txt = "METODO DE BISECCION - TABLA DE ITERACIONES\n"
+        log_txt += f"• Funcion: f(x) = {expr_str}\n"
+        log_txt += f"• Intervalo inicial: [{a}, {b}] | Tolerancia: {tol}\n" + "-" * 78 + "\n"
         log_txt += f"{'Iter':<5} | {'a':<7} | {'b':<7} | {'c':<9} | {'f(a)':<8} | {'f(b)':<8} | {'f(c)':<8} | {'Error':<8}\n"
-        log_txt += "—" * 78 + "\n"
+        log_txt += "-" * 78 + "\n"
 
         raiz = a
         exito = False
@@ -175,10 +175,10 @@ class MotorAlgebra:
         error_final = 0
 
         for k in range(1, max_iter + 1):
-            fa = f(a)
-            fb = f(b)
+            fa = MotorAlgebra.evaluar_funcion(expr_str, a)
+            fb = MotorAlgebra.evaluar_funcion(expr_str, b)
             c = (a + b) / 2.0
-            fc = f(c)
+            fc = MotorAlgebra.evaluar_funcion(expr_str, c)
             error = abs(fc)
             k_final = k
             error_final = error
@@ -196,25 +196,161 @@ class MotorAlgebra:
             else:
                 a = c
 
-        log_txt += "—" * 78 + "\n"
-        log_txt += f"🎯 RESULTADO FINAL:\n"
-        log_txt += f"• Raíz Aproximada (c) : {raiz:.6f}\n"
+        log_txt += "-" * 78 + "\n"
+        log_txt += "RESULTADO FINAL:\n"
+        log_txt += f"• Raiz Aproximada (c) : {raiz:.6f}\n"
         log_txt += f"• Margen de Error (|f(c)|) : {error_final:.6f}\n"
         log_txt += f"• Total de Iteraciones  : {k_final}\n"
 
         return {"exito": exito, "raiz": raiz, "filas": filas, "log": log_txt}
 
     @staticmethod
-    def generar_grafica_biseccion(expr_str, a_orig=None, b_orig=None, raiz=None):
-        def f(x_val):
-            dic_contexto = {
-                "x": x_val, "math": math, "sin": math.sin, "cos": math.cos,
-                "tan": math.tan, "exp": math.exp, "log": math.log, "sqrt": math.sqrt,
-                "pi": math.pi, "e": math.e
-            }
-            expr_eval = MotorAlgebra.limpiar_expresion_matematica(expr_str)
-            return float(eval(expr_eval, {"__builtins__": None}, dic_contexto))
+    def metodo_regla_falsa(expr_str, a, b, tol=0.0001, max_iter=100):
+        fa_val = MotorAlgebra.evaluar_funcion(expr_str, a)
+        fb_val = MotorAlgebra.evaluar_funcion(expr_str, b)
+        if fa_val * fb_val > 0:
+            raise ValueError(f"f(a)={fa_val:.4f} y f(b)={fb_val:.4f} deben tener signos opuestos (Teorema de Bolzano).")
 
+        filas = []
+        log_txt = "METODO DE REGLA FALSA (REGULA FALSI)\n"
+        log_txt += f"• Funcion: f(x) = {expr_str}\n"
+        log_txt += f"• Intervalo inicial: [{a}, {b}] | Tolerancia: {tol}\n" + "-" * 78 + "\n"
+        log_txt += f"{'Iter':<5} | {'a':<7} | {'b':<7} | {'xr':<9} | {'f(a)':<8} | {'f(b)':<8} | {'f(xr)':<8} | {'Error':<8}\n"
+        log_txt += "-" * 78 + "\n"
+
+        raiz = a
+        exito = False
+        k_final = 0
+        error_final = 0
+
+        for k in range(1, max_iter + 1):
+            fa = MotorAlgebra.evaluar_funcion(expr_str, a)
+            fb = MotorAlgebra.evaluar_funcion(expr_str, b)
+            xr = b - (fb * (a - b)) / (fa - fb)
+            fxr = MotorAlgebra.evaluar_funcion(expr_str, xr)
+            
+            error = abs(fxr)
+            k_final = k
+            error_final = error
+
+            filas.append({"iter": k, "a": a, "b": b, "c": xr, "fc": fxr, "error": error})
+            log_txt += f"{k:<5} | {a:<7.4f} | {b:<7.4f} | {xr:<9.4f} | {fa:<8.4f} | {fb:<8.4f} | {fxr:<8.4f} | {error:<8.4f}\n"
+
+            if abs(fxr) < tol or abs(b - a) / 2.0 < tol:
+                raiz = xr
+                exito = True
+                break
+
+            if fa * fxr < 0:
+                b = xr
+            else:
+                a = xr
+
+        log_txt += "-" * 78 + "\n"
+        log_txt += "RESULTADO FINAL:\n"
+        log_txt += f"• Raiz Aproximada (xr) : {raiz:.6f}\n"
+        log_txt += f"• Margen de Error (|f(xr)|) : {error_final:.6f}\n"
+        log_txt += f"• Total de Iteraciones  : {k_final}\n"
+
+        return {"exito": exito, "raiz": raiz, "filas": filas, "log": log_txt}
+
+    @staticmethod
+    def metodo_newton_raphson(expr_str, x0, tol=0.0001, max_iter=100):
+        filas = []
+        log_txt = "METODO ABIERTO - NEWTON-RAPHSON\n"
+        log_txt += f"• Funcion: f(x) = {expr_str}\n"
+        log_txt += f"• Valor inicial x0: {x0} | Tolerancia: {tol}\n" + "-" * 78 + "\n"
+        log_txt += f"{'Iter':<5} | {'xn':<12} | {'f(xn)':<12} | {'f\'(xn)':<12} | {'Error':<12}\n"
+        log_txt += "-" * 78 + "\n"
+
+        xn = x0
+        exito = False
+        k_final = 0
+        error_final = 0
+        h = 1e-5
+
+        for k in range(1, max_iter + 1):
+            fxn = MotorAlgebra.evaluar_funcion(expr_str, xn)
+            # Derivada numerica por diferencias finitas centrales
+            dfxn = (MotorAlgebra.evaluar_funcion(expr_str, xn + h) - MotorAlgebra.evaluar_funcion(expr_str, xn - h)) / (2 * h)
+
+            if abs(dfxn) < 1e-14:
+                raise ValueError("Derivada demasiado pequeña o cero. El metodo de Newton-Rapshon fallo por tangente horizontal[cite: 13, 16].")
+
+            xn_nuevo = xn - (fxn / dfxn)
+            error = abs(xn_nuevo - xn)
+            
+            filas.append({"iter": k, "c": xn_nuevo, "error": error})
+            log_txt += f"{k:<5} | {xn:<12.6f} | {fxn:<12.6f} | {dfxn:<12.6f} | {error:<12.6f}\n"
+
+            k_final = k
+            error_final = error
+
+            if abs(fxn) < tol or error < tol:
+                xn = xn_nuevo
+                exito = True
+                break
+
+            xn = xn_nuevo
+
+        log_txt += "-" * 78 + "\n"
+        log_txt += "RESULTADO FINAL:\n"
+        log_txt += f"• Raiz Aproximada : {xn:.6f}\n"
+        log_txt += f"• Margen de Error : {error_final:.6f}\n"
+        log_txt += f"• Total de Iteraciones : {k_final}\n"
+
+        return {"exito": exito, "raiz": xn, "filas": filas, "log": log_txt}
+
+    @staticmethod
+    def metodo_secante(expr_str, x0, x1, tol=0.0001, max_iter=100):
+        filas = []
+        log_txt = "METODO ABIERTO - SECANTE\n"
+        log_txt += f"• Funcion: f(x) = {expr_str}\n"
+        log_txt += f"• Valores iniciales x0: {x0}, x1: {x1} | Tolerancia: {tol}\n" + "-" * 78 + "\n"
+        log_txt += f"{'Iter':<5} | {'x_ant':<10} | {'x_act':<10} | {'x_nuevo':<10} | {'f(x_act)':<10} | {'Error':<10}\n"
+        log_txt += "-" * 78 + "\n"
+
+        exito = False
+        k_final = 0
+        error_final = 0
+        x_ant = x0
+        x_act = x1
+
+        for k in range(1, max_iter + 1):
+            f_ant = MotorAlgebra.evaluar_funcion(expr_str, x_ant)
+            f_act = MotorAlgebra.evaluar_funcion(expr_str, x_act)
+
+            denominador = (f_act - f_ant)
+            if abs(denominador) < 1e-14:
+                raise ValueError("Division por cero en el metodo de la secante (f(x_act) - f(x_ant) cercano a 0).")
+
+            x_nuevo = x_act - (f_act * (x_ant - x_act)) / denominador
+            error = abs(x_nuevo - x_act)
+
+            filas.append({"iter": k, "c": x_nuevo, "error": error})
+            log_txt += f"{k:<5} | {x_ant:<10.4f} | {x_act:<10.4f} | {x_nuevo:<10.4f} | {f_act:<10.4f} | {error:<10.4f}\n"
+
+            k_final = k
+            error_final = error
+
+            if abs(f_act) < tol or error < tol:
+                x_act = x_nuevo
+                exito = True
+                break
+
+            x_ant = x_act
+            x_act = x_nuevo
+
+        log_txt += "-" * 78 + "\n"
+        log_txt += "RESULTADO FINAL:\n"
+        log_txt += f"• Raiz Aproximada : {x_act:.6f}\n"
+        log_txt += f"• Margen de Error : {error_final:.6f}\n"
+        log_txt += f"• Total de Iteraciones : {k_final}\n"
+
+        return {"exito": exito, "raiz": x_act, "filas": filas, "log": log_txt}
+
+    @staticmethod
+    def generar_grafica_biseccion(expr_str, a_orig=None, b_orig=None, raiz=None):
         if a_orig is None or b_orig is None or (a_orig == 0 and b_orig == 0):
             x_min, x_max = -5.0, 5.0
         else:
@@ -229,7 +365,7 @@ class MotorAlgebra:
         current_x = x_min
         for _ in range(puntos + 1):
             try:
-                y_val = f(current_x)
+                y_val = MotorAlgebra.evaluar_funcion(expr_str, current_x)
                 if math.isfinite(y_val):
                     coords.append({"x": round(current_x, 4), "y": round(y_val, 4)})
             except Exception:
@@ -260,7 +396,7 @@ class MotorAlgebra:
     @staticmethod
     def arabico_a_romano(num):
         if not (0 < num < 4000):
-            raise ValueError("Número fuera de rango para romanos (1-3999).")
+            raise ValueError("Numero fuera de rango para romanos (1-3999).")
         val = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
         syb = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"]
         roman_num = ""

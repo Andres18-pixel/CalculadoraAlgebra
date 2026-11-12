@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LINEARX Web — Motor de Álgebra Lineal</title>
+    <title>LINEARX Web - Motor de Algebra Lineal</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js para gráficos -->
+    <!-- Chart.js para graficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
@@ -14,9 +14,10 @@
             theme: {
                 extend: {
                     colors: {
-                        darkBg: '#121212',
-                        darkPanel: '#1e1e1e',
-                        darkBorder: '#333333'
+                        darkBg: '#0b0f19',
+                        darkPanel: '#111827',
+                        darkBorder: '#1f2937',
+                        accentBlue: '#2563eb'
                     }
                 }
             }
@@ -26,87 +27,157 @@
 <body class="bg-darkBg text-gray-100 font-sans min-h-screen flex flex-col">
 
     <!-- Header Principal -->
-    <header class="bg-darkPanel border-b border-darkBorder px-6 py-4 flex justify-between items-center shadow-md">
-        <div class="flex items-center space-x-3">
-            <div class="bg-blue-600 text-white font-bold p-2 rounded-lg text-lg">LX</div>
-            <h1 class="text-xl font-extrabold tracking-wide">LINEARX Engine <span class="text-xs text-blue-400 font-normal px-2 py-0.5 bg-blue-950 border border-blue-800 rounded">Web Edition</span></h1>
-        </div>
-        <button onclick="toggleTheme()" class="bg-darkBorder hover:bg-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
-            🌙 Cambiar Tema
-        </button>
-    </header>
-
-    <!-- Barra de Navegación por Pestañas -->
-    <nav class="bg-darkPanel border-b border-darkBorder px-6 flex space-x-2 overflow-x-auto">
-        <button onclick="switchTab('vectores')" class="tab-btn py-3 px-4 text-sm font-medium border-b-2 border-blue-500 text-blue-400 whitespace-nowrap">Vectores</button>
-        <button onclick="switchTab('matrices')" class="tab-btn py-3 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap">Matrices</button>
-        <button onclick="switchTab('inversa')" class="tab-btn py-3 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap">Inversa de Matriz</button>
-        <button onclick="switchTab('determinantes')" class="tab-btn py-3 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap">Determinantes</button>
-        <button onclick="switchTab('ecuaciones')" class="tab-btn py-3 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap">Ecuaciones (Ax=b)</button>
-        <button onclick="switchTab('biseccion')" class="tab-btn py-3 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap">Bisección</button>
-        <button onclick="switchTab('romanos')" class="tab-btn py-3 px-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap">Números Romanos</button>
-    </nav>
-
-    <!-- Contenedor Principal -->
-    <main class="flex-1 p-6 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        <!-- Panel de Configuración e Inputs -->
-        <div class="bg-darkPanel border border-darkBorder rounded-xl p-5 flex flex-col shadow-lg">
-            <h2 id="panel-title" class="text-lg font-bold mb-4 border-b border-darkBorder pb-2 text-blue-400">Módulo Vectores</h2>
-            
-            <div id="module-inputs" class="space-y-4 flex-1">
-                <!-- Se inyecta dinámicamente -->
+    <header class="bg-darkPanel/80 backdrop-blur border-b border-darkBorder px-8 py-4 flex justify-between items-center shadow-sm">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="mostrarMenuPrincipal()">
+            <div class="bg-accentBlue text-white font-black p-2 rounded-xl text-sm tracking-wider shadow-lg">LX</div>
+            <div>
+                <h1 class="text-xs font-extrabold tracking-wide text-gray-200">LINEARX ENGINE</h1>
+                <span class="text-[9px] text-blue-400 font-mono tracking-widest uppercase">Professional Core</span>
             </div>
-
-            <button onclick="ejecutarCalculo()" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition shadow">
-                ⚡ Calcular Operación
+        </div>
+        <div class="flex items-center space-x-4">
+            <button id="btn-volver" onclick="mostrarMenuPrincipal()" class="hidden bg-darkBorder hover:bg-gray-700 text-xs font-semibold px-3.5 py-2 rounded-xl transition text-gray-300">
+                Volver al Menu Principal
+            </button>
+            <button onclick="toggleTheme()" class="bg-darkBorder hover:bg-gray-700 text-xs font-semibold px-3.5 py-2 rounded-xl transition text-gray-300">
+                Alternar Tema
             </button>
         </div>
+    </header>
 
-        <!-- Panel de Resultados, Gráficos y Logs -->
-        <div class="bg-darkPanel border border-darkBorder rounded-xl p-5 flex flex-col shadow-lg space-y-4">
-            <div class="flex justify-between items-center border-b border-darkBorder pb-2">
-                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider">Consola y Visualización</h3>
-                <button onclick="copiarResultado()" class="text-xs bg-darkBorder hover:bg-gray-700 px-3 py-1 rounded transition">📋 Copiar Consola</button>
-            </div>
-            
-            <!-- Canvas de Gráfica (Solo visible en Bisección) -->
-            <div id="chart-wrapper" class="hidden bg-darkBg border border-darkBorder rounded-lg p-3 relative h-64">
-                <canvas id="biseccionChart"></canvas>
+    <!-- Area Dinamica (Menu Principal o Calculadora) -->
+    <main class="flex-1 p-8 max-w-7xl mx-auto w-full flex flex-col justify-center">
+
+        <!-- 1. MENU PRINCIPAL (VISTA DE INICIO) -->
+        <div id="main-menu-view" class="space-y-8 py-6">
+            <div class="text-center space-y-3 max-w-2xl mx-auto">
+                <h2 class="text-3xl font-extrabold tracking-tight text-white">Centro de Computacion Matematica</h2>
+                <p class="text-xs text-gray-400 font-mono">Seleccione el modulo analitico o metodo numerico que desea ejecutar para la sesion de trabajo.</p>
             </div>
 
-            <div id="result-container" class="flex-1 bg-black/40 border border-darkBorder rounded-lg p-4 font-mono text-xs overflow-auto max-h-[350px] whitespace-pre-wrap text-green-400">
-                Esperando ejecución de datos...
+            <!-- Cuadricula de Accesos Directos / Tarjetas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pt-4">
+                <div onclick="seleccionarModulo('vectores')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group">
+                    <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 01</span>
+                    <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Vectores y Operaciones</h3>
+                    <p class="text-xs text-gray-400">Suma, resta, multiplicacion por escalar y combinaciones lineales de vectores.</p>
+                </div>
+
+                <div onclick="seleccionarModulo('matrices')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group">
+                    <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 02</span>
+                    <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Algebra de Matrices</h3>
+                    <p class="text-xs text-gray-400">Operaciones matriciales fundamentales, sumas, restas y productos matriciales.</p>
+                </div>
+
+                <div onclick="seleccionarModulo('inversa')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group">
+                    <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 03</span>
+                    <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Inversa por Gauss-Jordan</h3>
+                    <p class="text-xs text-gray-400">Calculo de matrices inversas mediante reduccion por filas y comprobacion exacta.</p>
+                </div>
+
+                <div onclick="seleccionarModulo('determinantes')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group">
+                    <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 04</span>
+                    <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Determinantes</h3>
+                    <p class="text-xs text-gray-400">Evaluacion mediante descomposicion LU, cofactores y regla de Sarrus.</p>
+                </div>
+
+                <div onclick="seleccionarModulo('ecuaciones')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group">
+                    <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 05</span>
+                    <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Sistemas de Ecuaciones (Ax=b)</h3>
+                    <p class="text-xs text-gray-400">Resolucion de sistemas lineales por metodos de eliminacion y Cramer.</p>
+                </div>
+
+                <div onclick="seleccionarModulo('biseccion')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group">
+                    <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 06</span>
+                    <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Metodos de Raices (Cerrados y Abiertos)</h3>
+                    <p class="text-xs text-gray-400">Biseccion, Regla Falsa, Newton-Raphson y Secante con graficas integradas.</p>
+                </div>
+
+                <div onclick="seleccionarModulo('romanos')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group md:col-span-2 lg:col-span-1">
+                    <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 07</span>
+                    <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Conversor Romanos</h3>
+                    <p class="text-xs text-gray-400">Traduccion bidireccional entre sistemas numericos arabigos y romanos.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. VISTA DE CALCULADORA (OCULTA HASTA SELECCIONAR MODULO) -->
+        <div id="calculator-view" class="hidden grid-cols-1 lg:grid-cols-2 gap-8 items-start w-full">
+            <!-- Panel de Inputs Dinamicos -->
+            <div class="bg-darkPanel border border-darkBorder rounded-2xl p-6 flex flex-col shadow-xl">
+                <h2 id="panel-title" class="text-sm font-bold uppercase tracking-wider mb-5 border-b border-darkBorder pb-3 text-blue-400 font-mono">Modulo</h2>
+                
+                <div id="module-inputs" class="space-y-4 flex-1">
+                    <!-- Dinamico -->
+                </div>
+
+                <!-- Boton Grafica Previa (Metodos de Raices) -->
+                <div id="extra-btn-container" class="mt-5 hidden">
+                    <button onclick="generarGraficaPrevia()" class="w-full bg-cyan-800 hover:bg-cyan-700 text-white font-semibold py-2.5 rounded-xl transition shadow text-xs uppercase tracking-wider">
+                        Generar Grafica Previa
+                    </button>
+                </div>
+
+                <button onclick="ejecutarCalculo()" class="mt-4 w-full bg-accentBlue hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-lg text-xs uppercase tracking-wider">
+                    Calcular Operacion
+                </button>
+            </div>
+
+            <!-- Panel de Consola y Graficas -->
+            <div class="bg-darkPanel border border-darkBorder rounded-2xl p-6 flex flex-col shadow-xl space-y-5">
+                <div class="flex justify-between items-center border-b border-darkBorder pb-3">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest font-mono">Consola y Visualizacion</h3>
+                    <button onclick="copiarResultado()" class="text-xs bg-darkBorder hover:bg-gray-700 px-3 py-1.5 rounded-lg transition text-gray-300 font-medium">Copiar Consola</button>
+                </div>
+                
+                <!-- Canvas Grafica -->
+                <div id="chart-wrapper" class="hidden bg-darkBg border border-darkBorder rounded-xl p-3 relative h-64 shadow-inner">
+                    <canvas id="biseccionChart"></canvas>
+                </div>
+
+                <div id="result-container" class="flex-1 bg-black/50 border border-darkBorder rounded-xl p-4 font-mono text-xs overflow-auto max-h-[380px] whitespace-pre-wrap text-green-400 shadow-inner">
+                    Esperando ejecucion de datos...
+                </div>
             </div>
         </div>
 
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-darkPanel border-t border-darkBorder px-6 py-2.5 text-xs text-gray-400 flex justify-between items-center">
-        <span>LINEARX Backend Core Activo (Python Engine)</span>
-        <span id="ram-status" class="text-blue-400">📊 RAM del Sistema: Monitoreo activo</span>
+    <!-- Footer Elegante -->
+    <footer class="bg-darkPanel border-t border-darkBorder px-8 py-3 text-xs text-gray-500 flex justify-between items-center font-mono">
+        <span>Universidad Americana - UAM</span>
+        <span class="text-blue-400">Entorno de Presentacion Academica</span>
     </footer>
 
-    <!-- Lógica Frontend -->
+    <!-- Logica Frontend -->
     <script>
         let currentTab = 'vectores';
         let myChart = null;
 
-        function switchTab(tab) {
+        function mostrarMenuPrincipal() {
+            document.getElementById('main-menu-view').classList.remove('hidden');
+            document.getElementById('calculator-view').classList.add('hidden');
+            document.getElementById('btn-volver').classList.add('hidden');
+            if (myChart) { myChart.destroy(); myChart = null; }
+        }
+
+        function seleccionarModulo(tab) {
             currentTab = tab;
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('border-blue-500', 'text-blue-400');
-                btn.classList.add('border-transparent', 'text-gray-400');
-            });
-            event.target.classList.remove('border-transparent', 'text-gray-400');
-            event.target.classList.add('border-blue-500', 'text-blue-400');
+            document.getElementById('main-menu-view').classList.add('hidden');
+            const calcView = document.getElementById('calculator-view');
+            calcView.classList.remove('hidden');
+            calcView.classList.add('grid');
+            document.getElementById('btn-volver').classList.remove('hidden');
 
             const chartWrapper = document.getElementById('chart-wrapper');
+            const extraBtnContainer = document.getElementById('extra-btn-container');
+
             if (tab === 'biseccion') {
                 chartWrapper.classList.remove('hidden');
+                extraBtnContainer.classList.remove('hidden');
             } else {
                 chartWrapper.classList.add('hidden');
+                extraBtnContainer.classList.add('hidden');
                 if (myChart) { myChart.destroy(); myChart = null; }
             }
 
@@ -119,93 +190,125 @@
             container.innerHTML = '';
 
             if (currentTab === 'vectores') {
-                title.innerText = "Módulo Vectores";
+                title.innerText = "Modulo Vectores";
                 container.innerHTML = `
-                    <div><label class="block text-xs font-semibold mb-1">Operación:</label>
-                    <select id="vec-op" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm">
+                    <div><label class="block text-xs font-semibold mb-1 text-gray-300">Operacion:</label>
+                    <select id="vec-op" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs text-gray-200">
                         <option value="suma">Suma (u + v)</option><option value="resta">Resta (u - v)</option><option value="escalar">Escalar (k · v)</option>
                     </select></div>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="block text-xs mb-1">Vector u:</label><input type="text" id="vec-u" value="1, 2, 3" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm"></div>
-                        <div><label class="block text-xs mb-1">Vector v / k:</label><input type="text" id="vec-v" value="4, 5, 6" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm"></div>
+                        <div><label class="block text-xs mb-1 text-gray-300">Vector u:</label><input type="text" id="vec-u" value="1, 2, 3" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono"></div>
+                        <div><label class="block text-xs mb-1 text-gray-300">Vector v / k:</label><input type="text" id="vec-v" value="4, 5, 6" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono"></div>
                     </div>`;
             } else if (currentTab === 'matrices') {
-                title.innerText = "Módulo Matrices";
+                title.innerText = "Modulo Matrices";
                 container.innerHTML = `
-                    <div><label class="block text-xs font-semibold mb-1">Operación:</label>
-                    <select id="mat-op" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm">
-                        <option value="suma">Suma (A + B)</option><option value="resta">Resta (A - B)</option><option value="multiplicacion">Multiplicación (A · B)</option><option value="escalar">Escalar (k · A)</option>
+                    <div><label class="block text-xs font-semibold mb-1 text-gray-300">Operacion:</label>
+                    <select id="mat-op" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs text-gray-200">
+                        <option value="suma">Suma (A + B)</option><option value="resta">Resta (A - B)</option><option value="multiplicacion">Multiplicacion (A · B)</option><option value="escalar">Escalar (k · A)</option>
                     </select></div>
-                    <div><label class="block text-xs mb-1">Matriz A (; filas):</label><textarea id="mat-a" rows="3" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm font-mono">1,2; 3,4</textarea></div>
-                    <div><label class="block text-xs mb-1">Matriz B / k:</label><textarea id="mat-b" rows="3" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm font-mono">5,6; 7,8</textarea></div>`;
+                    <div><label class="block text-xs mb-1 text-gray-300">Matriz A (; filas):</label><textarea id="mat-a" rows="3" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">1,2; 3,4</textarea></div>
+                    <div><label class="block text-xs mb-1 text-gray-300">Matriz B / k:</label><textarea id="mat-b" rows="3" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">5,6; 7,8</textarea></div>`;
             } else if (currentTab === 'inversa') {
                 title.innerText = "Inversa por Gauss-Jordan";
                 container.innerHTML = `
-                    <div><label class="block text-xs mb-1">Matriz A:</label><textarea id="inv-a" rows="4" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm font-mono">1,2,3; 0,1,4; 5,6,0</textarea></div>
-                    <div class="flex items-center space-x-2"><input type="checkbox" id="inv-pasos" checked class="rounded bg-darkBg border-darkBorder"> <label class="text-xs">Mostrar paso a paso</label></div>`;
+                    <div><label class="block text-xs mb-1 text-gray-300">Matriz A:</label><textarea id="inv-a" rows="4" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">1,2,3; 0,1,4; 5,6,0</textarea></div>
+                    <div class="flex items-center space-x-2 pt-2"><input type="checkbox" id="inv-pasos" checked class="rounded bg-darkBg border-darkBorder text-blue-600"> <label class="text-xs text-gray-300">Mostrar paso a paso</label></div>`;
             } else if (currentTab === 'determinantes') {
-                title.innerText = "Cálculo de Determinantes";
+                title.innerText = "Calculo de Determinantes";
                 container.innerHTML = `
-                    <div><label class="block text-xs font-semibold mb-1">Método:</label>
-                    <select id="det-metodo" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm">
-                        <option value="lu">Descomposición LU</option><option value="cofactores">Cofactores</option><option value="sarrus">Sarrus (2x2 o 3x3)</option>
+                    <div><label class="block text-xs font-semibold mb-1 text-gray-300">Metodo:</label>
+                    <select id="det-metodo" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs text-gray-200">
+                        <option value="lu">Descomposicion LU</option><option value="cofactores">Cofactores</option><option value="sarrus">Sarrus (2x2 o 3x3)</option>
                     </select></div>
-                    <div><label class="block text-xs mb-1">Matriz A:</label><textarea id="det-a" rows="4" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm font-mono">2,1,3; 1,0,2; 4,1,5</textarea></div>`;
+                    <div><label class="block text-xs mb-1 text-gray-300">Matriz A:</label><textarea id="det-a" rows="4" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">2,1,3; 1,0,2; 4,1,5</textarea></div>`;
             } else if (currentTab === 'ecuaciones') {
                 title.innerText = "Sistemas de Ecuaciones (Ax = b)";
                 container.innerHTML = `
-                    <div><label class="block text-xs font-semibold mb-1">Método:</label>
-                    <select id="ec-metodo" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm">
+                    <div><label class="block text-xs font-semibold mb-1 text-gray-300">Metodo:</label>
+                    <select id="ec-metodo" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs text-gray-200">
                         <option value="gauss">Gauss-Jordan</option><option value="cramer">Cramer</option>
                     </select></div>
-                    <div><label class="block text-xs mb-1">Matriz A:</label><textarea id="ec-a" rows="3" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm font-mono">2,1; 1,3</textarea></div>
-                    <div><label class="block text-xs mb-1">Vector b:</label><input type="text" id="ec-b" value="5, 7" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm"></div>`;
+                    <div><label class="block text-xs mb-1 text-gray-300">Matriz A:</label><textarea id="ec-a" rows="3" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">2,1; 1,3</textarea></div>
+                    <div><label class="block text-xs mb-1 text-gray-300">Vector b:</label><input type="text" id="ec-b" value="5, 7" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono"></div>`;
             } else if (currentTab === 'biseccion') {
-                title.innerText = "Método Numérico de Bisección";
+                title.innerText = "Metodos de Raices (Cerrados y Abiertos)";
                 container.innerHTML = `
                     <div>
-                        <label class="block text-xs mb-1 font-semibold text-gray-300">Función f(x):</label>
-                        <input type="text" id="bis-expr" value="" placeholder="Ej. x*cos(x) - 1" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm font-mono">
+                        <label class="block text-xs font-semibold mb-1 text-gray-300">Metodo Numerico:</label>
+                        <select id="bis-metodo" onchange="actualizarCamposMetodoRaices()" class="w-full bg-darkBg border border-darkBorder rounded p-2.5 text-xs text-blue-400 font-semibold">
+                            <option value="biseccion">Metodo de Biseccion</option>
+                            <option value="regla_falsa">Regla Falsa (Regula Falsi)</option>
+                            <option value="newton">Newton-Raphson (Abierto)</option>
+                            <option value="secante">Metodo de la Secante (Abierto)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs mb-1 font-semibold text-gray-300">Funcion f(x):</label>
+                        <input type="text" id="bis-expr" value="x**3 - x - 2" placeholder="Ej. x**3 - x - 2" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">
                     </div>
                     
-                    <!-- Mini Calculadora / Botonera rápida -->
-                    <div class="bg-black/30 border border-darkBorder rounded-lg p-2.5 space-y-2">
-                        <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Teclado Matemático Rápido</span>
+                    <!-- Teclado Matematico Rapido -->
+                    <div class="bg-black/30 border border-darkBorder rounded-xl p-3 space-y-2">
+                        <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Teclado Matematico Rapido</span>
                         <div class="grid grid-cols-6 gap-1.5">
-                            <button onclick="insertarSimbolo('x')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded transition text-blue-400 font-bold">x</button>
-                            <button onclick="insertarSimbolo('+')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded transition">+</button>
-                            <button onclick="insertarSimbolo('-')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded transition">-</button>
-                            <button onclick="insertarSimbolo('*')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded transition">*</button>
-                            <button onclick="insertarSimbolo('/')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded transition">/</button>
-                            <button onclick="insertarSimbolo('**')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded transition">^</button>
-                            <button onclick="insertarSimbolo('ln(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded transition">ln</button>
-                            <button onclick="insertarSimbolo('log(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded transition">log</button>
-                            <button onclick="insertarSimbolo('sqrt(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded transition">√</button>
-                            <button onclick="insertarSimbolo('sin(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded transition">sin</button>
-                            <button onclick="insertarSimbolo('cos(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded transition">cos</button>
-                            <button onclick="insertarSimbolo('exp(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded transition">exp</button>
-                            <button onclick="insertarSimbolo('(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded transition">(</button>
-                            <button onclick="insertarSimbolo(')')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded transition">)</button>
-                            <button onclick="insertarSimbolo('pi')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded transition">π</button>
-                            <button onclick="insertarSimbolo('e')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded transition">e</button>
-                            <button onclick="insertarSimbolo('2')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded transition">2</button>
-                            <button onclick="limpiarExpresion()" class="bg-red-950/60 hover:bg-red-900 text-red-300 text-xs font-mono py-1.5 rounded transition border border-red-900">AC</button>
+                            <button onclick="insertarSimbolo('x')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition text-blue-400 font-bold">x</button>
+                            <button onclick="insertarSimbolo('+')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">+</button>
+                            <button onclick="insertarSimbolo('-')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">-</button>
+                            <button onclick="insertarSimbolo('*')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">*</button>
+                            <button onclick="insertarSimbolo('/')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">/</button>
+                            <button onclick="insertarSimbolo('**')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">^</button>
+                            <button onclick="insertarSimbolo('ln(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">ln</button>
+                            <button onclick="insertarSimbolo('log(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">log</button>
+                            <button onclick="insertarSimbolo('sqrt(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">√</button>
+                            <button onclick="insertarSimbolo('sin(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">sin</button>
+                            <button onclick="insertarSimbolo('cos(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">cos</button>
+                            <button onclick="insertarSimbolo('exp(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">exp</button>
+                            <button onclick="insertarSimbolo('(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">(</button>
+                            <button onclick="insertarSimbolo(')')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">)</button>
+                            <button onclick="insertarSimbolo('pi')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">π</button>
+                            <button onclick="insertarSimbolo('e')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">e</button>
+                            <button onclick="insertarSimbolo('3')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">3</button>
+                            <button onclick="limpiarExpresion()" class="bg-red-950/60 hover:bg-red-900 text-red-300 text-xs font-mono py-1.5 rounded-lg transition border border-red-900">AC</button>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2">
-                        <div><label class="block text-xs mb-1">a inicial:</label><input type="text" id="bis-a" value="" placeholder="Ej. -3" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm"></div>
-                        <div><label class="block text-xs mb-1">b inicial:</label><input type="text" id="bis-b" value="" placeholder="Ej. -1" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm"></div>
-                        <div><label class="block text-xs mb-1">Tolerancia:</label><input type="text" id="bis-tol" value="0.0001" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm"></div>
+                    <!-- Contenedor Dinamico de Parametros (a, b, x0, x1, tol) -->
+                    <div id="parametros-inputs" class="grid grid-cols-3 gap-2">
+                        <div><label class="block text-xs mb-1 text-gray-300">a inicial:</label><input type="text" id="bis-a" value="1" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono"></div>
+                        <div><label class="block text-xs mb-1 text-gray-300">b inicial:</label><input type="text" id="bis-b" value="2" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono"></div>
+                        <div><label class="block text-xs mb-1 text-gray-300">Tolerancia:</label><input type="text" id="bis-tol" value="0.0001" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono"></div>
                     </div>`;
             } else if (currentTab === 'romanos') {
-                title.innerText = "Números Romanos";
+                title.innerText = "Numeros Romanos";
                 container.innerHTML = `
-                    <div><label class="block text-xs font-semibold mb-1">Modo:</label>
-                    <select id="rom-modo" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm">
-                        <option value="r2a">Romano a Arábigo</option><option value="a2r">Arábigo a Romano</option>
+                    <div><label class="block text-xs font-semibold mb-1 text-gray-300">Modo:</label>
+                    <select id="rom-modo" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs text-gray-200">
+                        <option value="r2a">Romano a Arabigo</option><option value="a2r">Arabigo a Romano</option>
                     </select></div>
-                    <div><label class="block text-xs mb-1">Valor:</label><input type="text" id="rom-val" value="XIV" class="w-full bg-darkBg border border-darkBorder rounded p-2 text-sm"></div>`;
+                    <div><label class="block text-xs mb-1 text-gray-300">Valor:</label><input type="text" id="rom-val" value="XIV" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono"></div>`;
+            }
+        }
+
+        function actualizarCamposMetodoRaices() {
+            const metodo = document.getElementById('bis-metodo').value;
+            const container = document.getElementById('parametros-inputs');
+            if (!container) return;
+
+            if (metodo === 'biseccion' || metodo === 'regla_falsa') {
+                container.innerHTML = `
+                    <div><label class="block text-xs mb-1 text-gray-300">a inicial:</label><input type="text" id="bis-a" value="1" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono"></div>
+                    <div><label class="block text-xs mb-1 text-gray-300">b inicial:</label><input type="text" id="bis-b" value="2" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono"></div>
+                    <div><label class="block text-xs mb-1 text-gray-300">Tolerancia:</label><input type="text" id="bis-tol" value="0.0001" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono"></div>`;
+            } else if (metodo === 'newton') {
+                container.innerHTML = `
+                    <div class="col-span-2"><label class="block text-xs mb-1 text-gray-300">Punto Inicial (x0):</label><input type="text" id="bis-x0" value="1.5" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono"></div>
+                    <div><label class="block text-xs mb-1 text-gray-300">Tolerancia:</label><input type="text" id="bis-tol" value="0.0001" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono"></div>`;
+            } else if (metodo === 'secante') {
+                container.innerHTML = `
+                    <div><label class="block text-xs mb-1 text-gray-300">x0 inicial:</label><input type="text" id="bis-x0" value="1" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono"></div>
+                    <div><label class="block text-xs mb-1 text-gray-300">x1 inicial:</label><input type="text" id="bis-x1" value="2" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono"></div>
+                    <div><label class="block text-xs mb-1 text-gray-300">Tolerancia:</label><input type="text" id="bis-tol" value="0.0001" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono"></div>`;
             }
         }
 
@@ -225,6 +328,49 @@
             if (input) {
                 input.value = "";
                 input.focus();
+            }
+        }
+
+        async function generarGraficaPrevia() {
+            if (currentTab !== 'biseccion') return;
+            
+            let submetodo = document.getElementById('bis-metodo').value;
+            let payload = {
+                modulo: 'biseccion',
+                expr: document.getElementById('bis-expr').value,
+                submetodo: submetodo,
+                tol: document.getElementById('bis-tol').value
+            };
+
+            if (submetodo === 'newton') {
+                payload.x0 = document.getElementById('bis-x0').value;
+            } else if (submetodo === 'secante') {
+                payload.x0 = document.getElementById('bis-x0').value;
+                payload.x1 = document.getElementById('bis-x1').value;
+            } else {
+                payload.a = document.getElementById('bis-a').value;
+                payload.b = document.getElementById('bis-b').value;
+            }
+
+            try {
+                const response = await fetch('/api/calcular/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const res = await response.json();
+                
+                const box = document.getElementById('result-container');
+                if (res.status === 'ok') {
+                    box.innerText = "Grafica general generada correctamente. Analice los puntos de corte en el eje X.";
+                    if (res.grafica) {
+                        renderizarGraficaBiseccion(res.grafica);
+                    }
+                } else {
+                    box.innerText = "ERROR: " + res.message;
+                }
+            } catch (err) {
+                document.getElementById('result-container').innerText = "Error de conexion: " + err;
             }
         }
 
@@ -255,10 +401,20 @@
                 payload.A = document.getElementById('ec-a').value.split(';').map(r => r.split(',').map(Number));
                 payload.b = document.getElementById('ec-b').value.split(',').map(Number);
             } else if (currentTab === 'biseccion') {
+                let submetodo = document.getElementById('bis-metodo').value;
                 payload.expr = document.getElementById('bis-expr').value;
-                payload.a = parseFloat(document.getElementById('bis-a').value);
-                payload.b = parseFloat(document.getElementById('bis-b').value);
-                payload.tol = parseFloat(document.getElementById('bis-tol').value);
+                payload.submetodo = submetodo;
+                payload.tol = document.getElementById('bis-tol').value;
+
+                if (submetodo === 'newton') {
+                    payload.x0 = document.getElementById('bis-x0').value;
+                } else if (submetodo === 'secante') {
+                    payload.x0 = document.getElementById('bis-x0').value;
+                    payload.x1 = document.getElementById('bis-x1').value;
+                } else {
+                    payload.a = document.getElementById('bis-a').value;
+                    payload.b = document.getElementById('bis-b').value;
+                }
             } else if (currentTab === 'romanos') {
                 payload.modo = document.getElementById('rom-modo').value;
                 payload.val = document.getElementById('rom-val').value;
@@ -280,10 +436,10 @@
                         renderizarGraficaBiseccion(res.grafica);
                     }
                 } else {
-                    box.innerText = "❌ ERROR: " + res.message;
+                    box.innerText = "ERROR: " + res.message;
                 }
             } catch (err) {
-                document.getElementById('result-container').innerText = "❌ Error de conexión: " + err;
+                document.getElementById('result-container').innerText = "Error de conexion: " + err;
             }
         }
 
@@ -298,18 +454,18 @@
                         {
                             label: 'f(x)',
                             data: dataGrafica.puntos,
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            borderWidth: 2,
-                            pointRadius: 1,
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            borderWidth: 2.5,
+                            pointRadius: 2,
                             tension: 0.2
                         },
                         {
-                            label: 'Raíz Hallada',
-                            data: [dataGrafica.raiz],
+                            label: 'Raiz Hallada',
+                            data: dataGrafica.raiz ? [dataGrafica.raiz] : [],
                             backgroundColor: '#ef4444',
                             borderColor: '#ef4444',
-                            pointRadius: 6,
+                            pointRadius: 7,
                             pointStyle: 'star'
                         }
                     ]
@@ -318,10 +474,10 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { type: 'linear', position: 'bottom', grid: { color: '#333' }, ticks: { color: '#aaa' } },
-                        y: { grid: { color: '#333' }, ticks: { color: '#aaa' } }
+                        x: { type: 'linear', position: 'bottom', grid: { color: '#1f2937' }, ticks: { color: '#9ca3af', font: { size: 10 } } },
+                        y: { grid: { color: '#1f2937' }, ticks: { color: '#9ca3af', font: { size: 10 } } }
                     },
-                    plugins: { legend: { labels: { color: '#fff', font: { size: 10 } } } }
+                    plugins: { legend: { labels: { color: '#e5e7eb', font: { size: 11 } } } }
                 }
             });
         }
@@ -332,8 +488,6 @@
         }
 
         function toggleTheme() { document.documentElement.classList.toggle('dark'); }
-
-        renderInputs();
     </script>
 </body>
 </html>
