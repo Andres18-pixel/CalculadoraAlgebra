@@ -71,6 +71,7 @@ def calcular_api(request):
             return JsonResponse({
                 'status': 'ok',
                 'existe': out['existe'],
+                'determinante': out.get('determinante'),
                 'inversa': out['inversa'],
                 'comprobacion': out['comprobacion'],
                 'log': out['log']
@@ -109,14 +110,19 @@ def calcular_api(request):
             a = float(raw_a) if raw_a not in [None, ''] else None
             b = float(raw_b) if raw_b not in [None, ''] else None
             out = MotorAlgebra.recomendar_metodo(expr, a, b)
-            return JsonResponse({'status': 'ok', 'log': out['log'], 'recomendacion': out['recomendacion']})
+            return JsonResponse({
+                'status': 'ok',
+                'log': out['log'],
+                'recomendacion': out['recomendacion'],
+                'intervalos': out.get('intervalos', [])
+            })
 
         elif modulo == 'biseccion':
             expr = data.get('expr', '')
             submetodo = data.get('submetodo', 'biseccion')
             solo_grafica = data.get('solo_grafica', False)
-            raw_tol = data.get('tol', 0.0001)
-            tol = float(raw_tol) if raw_tol not in [None, ''] else 0.0001
+            raw_tol = data.get('tol', 1e-6)
+            tol = float(raw_tol) if raw_tol not in [None, ''] else 1e-6
             raw_max_iter = data.get('max_iter', 100)
             max_iter = int(raw_max_iter) if raw_max_iter not in [None, ''] else 100
 

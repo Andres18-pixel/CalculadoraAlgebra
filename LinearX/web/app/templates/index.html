@@ -47,7 +47,6 @@
 
     <main class="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full flex flex-col justify-center">
 
-        <!-- MENU PRINCIPAL -->
         <div id="main-menu-view" class="space-y-8 py-6">
             <div class="text-center space-y-3 max-w-2xl mx-auto">
                 <h2 class="text-3xl font-extrabold tracking-tight text-white">Centro de Computacion Matematica</h2>
@@ -69,8 +68,8 @@
 
                 <div onclick="seleccionarModulo('inversa')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group">
                     <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 03</span>
-                    <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Inversa por Gauss-Jordan</h3>
-                    <p class="text-xs text-gray-400">Reduccion paso a paso [A | I] -> [I | A^-1] con operaciones de fila.</p>
+                    <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Determinante e Inversa (Gauss-Jordan)</h3>
+                    <p class="text-xs text-gray-400">Calcula det(A), justifica existencia, halla A^-1 y verifica A·A^-1 = I.</p>
                 </div>
 
                 <div onclick="seleccionarModulo('determinantes')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group">
@@ -81,14 +80,14 @@
 
                 <div onclick="seleccionarModulo('ecuaciones')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group">
                     <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 05</span>
-                    <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Sistemas de Ecuaciones (Ax=b)</h3>
-                    <p class="text-xs text-gray-400">Gauss-Jordan paso a paso y Regla de Cramer con cada Delta.</p>
+                    <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Sistemas de Ecuaciones (A·X = B)</h3>
+                    <p class="text-xs text-gray-400">Planteamiento A·X=B, unicidad, Gauss-Jordan/Cramer y verificacion.</p>
                 </div>
 
                 <div onclick="seleccionarModulo('biseccion')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group">
                     <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 06</span>
                     <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Metodos de Raices (Cerrados y Abiertos)</h3>
-                    <p class="text-xs text-gray-400">Biseccion, Regla Falsa, Newton-Raphson y Secante con zoom infinito.</p>
+                    <p class="text-xs text-gray-400">Biseccion, Regla Falsa, Newton-Raphson y Secante a 8 cifras (10^-6).</p>
                 </div>
 
                 <div onclick="seleccionarModulo('romanos')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group md:col-span-2 lg:col-span-1">
@@ -99,19 +98,20 @@
             </div>
         </div>
 
-        <!-- VISTA DE CALCULADORA -->
         <div id="calculator-view" class="hidden grid-cols-1 lg:grid-cols-2 gap-8 items-start w-full">
             <div class="bg-darkPanel border border-darkBorder rounded-2xl p-6 flex flex-col shadow-xl">
                 <h2 id="panel-title" class="text-sm font-bold uppercase tracking-wider mb-5 border-b border-darkBorder pb-3 text-blue-400 font-mono">Modulo</h2>
                 
-                <div id="module-inputs" class="space-y-4 flex-1">
-                    <!-- Dinamico -->
-                </div>
+                <div id="module-inputs" class="space-y-4 flex-1"></div>
 
                 <div id="extra-btn-container" class="mt-5 space-y-2 hidden">
                     <button onclick="recomendarMetodo()" class="w-full bg-purple-900/60 hover:bg-purple-800 text-purple-200 font-semibold py-2.5 rounded-xl transition shadow text-xs uppercase tracking-wider border border-purple-700">
-                        Asesor Inteligente: Sugerir Metodo Optimo
+                        Asesor Inteligente: Sugerir Metodo e Intervalos
                     </button>
+                    <div id="asesor-intervalos-box" class="hidden bg-purple-950/40 border border-purple-800/70 rounded-xl p-2.5 space-y-1.5">
+                        <span class="block text-[10px] text-purple-300 font-mono uppercase">Clic para aplicar intervalo o punto inicial sugerido:</span>
+                        <div id="asesor-intervalos-btns" class="flex flex-wrap gap-1.5"></div>
+                    </div>
                     <button onclick="generarGraficaPrevia()" class="w-full bg-cyan-800 hover:bg-cyan-700 text-white font-semibold py-2.5 rounded-xl transition shadow text-xs uppercase tracking-wider">
                         Generar / Actualizar Grafica
                     </button>
@@ -134,12 +134,11 @@
                     </div>
                 </div>
 
-                <!-- Contenedor Grafica Infinita -->
                 <div id="chart-wrapper" class="hidden bg-darkBg border border-darkBorder rounded-xl p-3 relative h-80 shadow-inner">
                     <canvas id="biseccionChart"></canvas>
                 </div>
 
-                <div id="result-container" class="flex-1 bg-black/50 border border-darkBorder rounded-xl p-4 font-mono text-xs overflow-auto max-h-[420px] whitespace-pre-wrap text-green-400 shadow-inner">
+                <div id="result-container" class="flex-1 bg-black/50 border border-darkBorder rounded-xl p-4 font-mono text-xs overflow-auto max-h-[460px] whitespace-pre-wrap text-green-400 shadow-inner">
                     Esperando ejecucion de datos...
                 </div>
             </div>
@@ -167,6 +166,8 @@
         function limpiarResultadosPrevios() {
             const box = document.getElementById('result-container');
             if (box) box.innerText = "Esperando ejecucion de datos...";
+            const asesorBox = document.getElementById('asesor-intervalos-box');
+            if (asesorBox) asesorBox.classList.add('hidden');
             ultimaGraficaData = null;
             if (myChart) {
                 myChart.destroy();
@@ -204,9 +205,14 @@
             renderInputs();
         }
 
-        // ==================== MOTOR MATEMATICO INFINITO EN JAVASCRIPT ====================
         function compilarFuncionJS(exprStr) {
-            let e = exprStr.trim().replace(/X/g, 'x').replace(/\^/g, '**');
+            let e = exprStr.trim()
+                .replace(/−/g, '-')
+                .replace(/·/g, '*')
+                .replace(/X/g, 'x')
+                .replace(/\^/g, '**');
+            e = e.replace(/\b(sin|cos|tan|ln|log|sqrt|exp)x\b/g, '$1(x)');
+
             e = e.replace(/\bln\b/g, '__LN__')
                  .replace(/\blog\b/g, '__LOG__')
                  .replace(/\bsin\b/g, '__SIN__')
@@ -219,6 +225,7 @@
 
             e = e.replace(/(\d)(x|\(|__)/g, '$1*$2');
             e = e.replace(/(x|\))(\(|__|x|\d)/g, '$1*$2');
+            e = e.replace(/(__PI__|__E__)(x|\()/g, '$1*$2');
 
             e = e.replace(/__LN__/g, 'Math.log')
                  .replace(/__LOG__/g, 'Math.log')
@@ -237,19 +244,31 @@
             }
         }
 
-        function generarPuntosInfinitos(exprStr, xMin, xMax, numPuntos = 450) {
+        function generarPuntosInfinitos(exprStr, xMin, xMax, numPuntos = 500) {
             const fn = compilarFuncionJS(exprStr);
             if (!fn) return [];
             const puntos = [];
             const paso = (xMax - xMin) / numPuntos;
+            let prevY = null;
+
             for (let i = 0; i <= numPuntos; i++) {
                 const x = xMin + i * paso;
                 try {
                     const y = fn(x);
-                    if (typeof y === 'number' && Number.isFinite(y) && Math.abs(y) < 1e7) {
+                    if (typeof y === 'number' && Number.isFinite(y) && Math.abs(y) < 100) {
+                        if (prevY !== null && Math.abs(y - prevY) > 40) {
+                            puntos.push({ x: x, y: null });
+                        }
                         puntos.push({ x: x, y: y });
+                        prevY = y;
+                    } else {
+                        puntos.push({ x: x, y: null });
+                        prevY = null;
                     }
-                } catch (err) {}
+                } catch (err) {
+                    puntos.push({ x: x, y: null });
+                    prevY = null;
+                }
             }
             return puntos;
         }
@@ -261,15 +280,29 @@
             if (!scaleX) return;
             const xMin = scaleX.min;
             const xMax = scaleX.max;
-            const nuevosPuntos = generarPuntosInfinitos(exprInput.value, xMin, xMax, 450);
+            const nuevosPuntos = generarPuntosInfinitos(exprInput.value, xMin, xMax, 500);
             if (nuevosPuntos.length > 0) {
                 chart.data.datasets[0].data = nuevosPuntos;
                 chart.update('none');
             }
         }
 
-        function crearHTMLCuadricula(prefix, filas, cols, valoresDefecto = null) {
+        function obtenerEtiquetasVariables(n) {
+            if (n === 2) return ['x', 'y'];
+            if (n === 3) return ['x', 'y', 'z'];
+            if (n === 4) return ['x', 'y', 'z', 'w'];
+            return Array.from({ length: n }, (_, i) => `x${i + 1}`);
+        }
+
+        function crearHTMLCuadricula(prefix, filas, cols, valoresDefecto = null, encabezadosCol = null) {
             let html = `<div class="overflow-x-auto bg-black/30 p-3 rounded-xl border border-darkBorder inline-block max-w-full">`;
+            if (encabezadosCol && encabezadosCol.length === cols) {
+                html += `<div class="flex space-x-1.5 mb-1.5">`;
+                for (let j = 0; j < cols; j++) {
+                    html += `<div class="w-16 text-center text-[11px] font-mono font-bold text-blue-400 uppercase">${encabezadosCol[j]}</div>`;
+                }
+                html += `</div>`;
+            }
             for (let i = 0; i < filas; i++) {
                 html += `<div class="flex space-x-1.5 mb-1.5 last:mb-0">`;
                 for (let j = 0; j < cols; j++) {
@@ -319,20 +352,41 @@
             }
         }
 
-        function generarCuadriculaCuadrada(tipo) {
+        function generarCuadriculaCuadrada(tipo, valoresA = null, valoresB = null) {
             const n = parseInt(document.getElementById(`${tipo}-n`).value);
             const cont = document.getElementById(`grid-${tipo}`);
             if (tipo === 'ec') {
+                const vars = obtenerEtiquetasVariables(n);
                 let html = `<div class="flex flex-wrap items-start gap-4">`;
-                html += `<div><label class="block text-xs mb-1.5 text-gray-300 font-semibold">Matriz Coeficientes A (${n}x${n}):</label>` + crearHTMLCuadricula('eca', n, n) + `</div>`;
-                html += `<div><label class="block text-xs mb-1.5 text-blue-400 font-semibold">Terminos Indep. b:</label><div class="bg-black/30 p-3 rounded-xl border border-darkBorder">`;
+                html += `<div><label class="block text-xs mb-1.5 text-gray-300 font-semibold">Matriz Coeficientes A (${n}x${n}):</label>` + crearHTMLCuadricula('eca', n, n, valoresA, vars) + `</div>`;
+                html += `<div><label class="block text-xs mb-1.5 text-amber-400 font-semibold">Vector B (=):</label><div class="bg-black/30 p-3 rounded-xl border border-darkBorder">`;
+                html += `<div class="mb-1.5 text-center text-[11px] font-mono font-bold text-amber-400">B</div>`;
                 for (let i = 0; i < n; i++) {
-                    html += `<div class="mb-1.5 last:mb-0"><input type="number" step="any" id="ecb-${i}" value="${i + 1}" class="w-16 bg-darkBg border border-blue-900/60 focus:border-blue-500 rounded-lg px-2 py-1.5 text-xs font-mono text-center text-blue-200"></div>`;
+                    const valB = (valoresB && valoresB[i] !== undefined) ? valoresB[i] : (i + 1);
+                    html += `<div class="mb-1.5 last:mb-0"><input type="number" step="any" id="ecb-${i}" value="${valB}" class="w-16 bg-darkBg border border-amber-900/60 focus:border-amber-500 rounded-lg px-2 py-1.5 text-xs font-mono text-center text-amber-200"></div>`;
                 }
                 html += `</div></div></div>`;
                 cont.innerHTML = html;
             } else {
-                cont.innerHTML = `<label class="block text-xs mb-1.5 text-gray-300 font-semibold">Matriz A (${n}x${n}):</label>` + crearHTMLCuadricula(`${tipo}a`, n, n);
+                cont.innerHTML = `<label class="block text-xs mb-1.5 text-gray-300 font-semibold">Matriz A (${n}x${n}):</label>` + crearHTMLCuadricula(`${tipo}a`, n, n, valoresA);
+            }
+        }
+
+        function aplicarIntervaloSugerido(a, b, x0) {
+            const metodo = document.getElementById('bis-metodo').value;
+            if (metodo === 'newton') {
+                const elX0 = document.getElementById('bis-x0');
+                if (elX0) elX0.value = x0;
+            } else if (metodo === 'secante') {
+                const elX0 = document.getElementById('bis-x0');
+                const elX1 = document.getElementById('bis-x1');
+                if (elX0) elX0.value = a;
+                if (elX1) elX1.value = b;
+            } else {
+                const elA = document.getElementById('bis-a');
+                const elB = document.getElementById('bis-b');
+                if (elA) elA.value = a;
+                if (elB) elB.value = b;
             }
         }
 
@@ -401,14 +455,14 @@
                     <div id="grid-mat-b"></div>`;
                 generarCuadriculasMatrices();
             } else if (currentTab === 'inversa') {
-                title.innerText = "Modulo 03 - Inversa por Gauss-Jordan";
+                title.innerText = "Modulo 03 - Determinante e Inversa (Gauss-Jordan)";
                 container.innerHTML = `
                     <div class="flex items-center space-x-4">
                         <div><label class="block text-xs mb-1 text-gray-300">Orden (n x n):</label>
                         <select id="inv-n" onchange="generarCuadriculaCuadrada('inv')" class="bg-darkBg border border-darkBorder rounded-xl px-3 py-2 text-xs font-mono">
-                            <option value="2">2 x 2</option><option value="3" selected>3 x 3</option><option value="4">4 x 4</option><option value="5">5 x 5</option>
+                            <option value="2">2 x 2</option><option value="3">3 x 3</option><option value="4" selected>4 x 4</option><option value="5">5 x 5</option>
                         </select></div>
-                        <div class="flex items-center space-x-2 pt-4"><input type="checkbox" id="inv-pasos" checked class="rounded bg-darkBg border-darkBorder text-blue-600"> <label class="text-xs text-gray-300">Mostrar operaciones de fila</label></div>
+                        <div class="flex items-center space-x-2 pt-4"><input type="checkbox" id="inv-pasos" checked class="rounded bg-darkBg border-darkBorder text-blue-600"> <label class="text-xs text-gray-300">Mostrar procedimiento paso a paso</label></div>
                     </div>
                     <div id="grid-inv"></div>`;
                 generarCuadriculaCuadrada('inv');
@@ -424,13 +478,13 @@
                         </select></div>
                         <div><label class="block text-xs font-semibold mb-1 text-gray-300">Orden (n x n):</label>
                         <select id="det-n" onchange="generarCuadriculaCuadrada('det')" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">
-                            <option value="2">2 x 2</option><option value="3" selected>3 x 3</option><option value="4">4 x 4</option><option value="5">5 x 5</option>
+                            <option value="2">2 x 2</option><option value="3">3 x 3</option><option value="4" selected>4 x 4</option><option value="5">5 x 5</option>
                         </select></div>
                     </div>
                     <div id="grid-det"></div>`;
                 generarCuadriculaCuadrada('det');
             } else if (currentTab === 'ecuaciones') {
-                title.innerText = "Modulo 05 - Sistemas de Ecuaciones (Ax = b)";
+                title.innerText = "Modulo 05 - Sistemas de Ecuaciones (A·X = B)";
                 container.innerHTML = `
                     <div class="grid grid-cols-2 gap-3">
                         <div><label class="block text-xs font-semibold mb-1 text-gray-300">Metodo:</label>
@@ -440,7 +494,7 @@
                         </select></div>
                         <div><label class="block text-xs font-semibold mb-1 text-gray-300">Incognitas (n):</label>
                         <select id="ec-n" onchange="generarCuadriculaCuadrada('ec')" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">
-                            <option value="2">2 ecuaciones</option><option value="3" selected>3 ecuaciones</option><option value="4">4 ecuaciones</option>
+                            <option value="2">2 ecuaciones (x, y)</option><option value="3">3 ecuaciones (x, y, z)</option><option value="4" selected>4 ecuaciones (x, y, z, w)</option>
                         </select></div>
                     </div>
                     <div id="grid-ec"></div>`;
@@ -453,7 +507,7 @@
                         <select id="bis-metodo" onchange="actualizarCamposMetodoRaices()" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs text-blue-400 font-semibold">
                             <optgroup label="Metodos Cerrados">
                                 <option value="biseccion">Metodo de Biseccion</option>
-                                <option value="regla_falsa">Regla Falsa (Regula Falsi)</option>
+                                <option value="regla_falsa">Falsa Posicion (Regula Falsi)</option>
                             </optgroup>
                             <optgroup label="Metodos Abiertos">
                                 <option value="newton">Newton-Raphson</option>
@@ -463,7 +517,7 @@
                     </div>
                     <div>
                         <label class="block text-xs mb-1 font-semibold text-gray-300">Funcion f(x):</label>
-                        <input type="text" id="bis-expr" value="sin(x)-x**2" placeholder="Ej. sin(x)-x**2" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">
+                        <input type="text" id="bis-expr" value="x**3 - 4*x - 9" placeholder="Ej. x**3 - 4*x - 9" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">
                     </div>
                     
                     <div class="bg-black/30 border border-darkBorder rounded-xl p-3 space-y-2">
@@ -480,12 +534,12 @@
                             <button onclick="insertarSimbolo('sqrt(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">√</button>
                             <button onclick="insertarSimbolo('sin(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">sin</button>
                             <button onclick="insertarSimbolo('cos(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">cos</button>
+                            <button onclick="insertarSimbolo('tan(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">tan</button>
                             <button onclick="insertarSimbolo('exp(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">exp</button>
                             <button onclick="insertarSimbolo('(')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">(</button>
                             <button onclick="insertarSimbolo(')')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">)</button>
                             <button onclick="insertarSimbolo('pi')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">π</button>
                             <button onclick="insertarSimbolo('e')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">e</button>
-                            <button onclick="insertarSimbolo('2')" class="bg-darkBorder hover:bg-blue-600 text-xs font-mono py-1.5 rounded-lg transition">2</button>
                             <button onclick="limpiarExpresion()" class="bg-red-950/60 hover:bg-red-900 text-red-300 text-xs font-mono py-1.5 rounded-lg transition border border-red-900">AC</button>
                         </div>
                     </div>
@@ -511,20 +565,20 @@
 
             if (metodo === 'biseccion' || metodo === 'regla_falsa') {
                 container.innerHTML = `
-                    <div><label class="block text-[11px] mb-1 text-gray-300">a inicial:</label><input type="text" id="bis-a" value="0.5" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>
-                    <div><label class="block text-[11px] mb-1 text-gray-300">b inicial:</label><input type="text" id="bis-b" value="1.1" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>
-                    <div><label class="block text-[11px] mb-1 text-gray-300">Tolerancia:</label><input type="text" id="bis-tol" value="0.0001" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>
+                    <div><label class="block text-[11px] mb-1 text-gray-300">a inicial:</label><input type="text" id="bis-a" value="2" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>
+                    <div><label class="block text-[11px] mb-1 text-gray-300">b inicial:</label><input type="text" id="bis-b" value="3" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>
+                    <div><label class="block text-[11px] mb-1 text-gray-300">Tolerancia:</label><input type="text" id="bis-tol" value="0.000001" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>
                     <div><label class="block text-[11px] mb-1 text-gray-300">Max Iter:</label><input type="number" id="bis-maxiter" value="100" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>`;
             } else if (metodo === 'newton') {
                 container.innerHTML = `
-                    <div class="col-span-2"><label class="block text-[11px] mb-1 text-gray-300">Punto Inicial (x0):</label><input type="text" id="bis-x0" value="0.8" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>
-                    <div><label class="block text-[11px] mb-1 text-gray-300">Tolerancia:</label><input type="text" id="bis-tol" value="0.0001" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>
+                    <div class="col-span-2"><label class="block text-[11px] mb-1 text-gray-300">Punto Inicial (x0):</label><input type="text" id="bis-x0" value="2.5" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>
+                    <div><label class="block text-[11px] mb-1 text-gray-300">Tolerancia:</label><input type="text" id="bis-tol" value="0.000001" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>
                     <div><label class="block text-[11px] mb-1 text-gray-300">Max Iter:</label><input type="number" id="bis-maxiter" value="100" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>`;
             } else if (metodo === 'secante') {
                 container.innerHTML = `
-                    <div><label class="block text-[11px] mb-1 text-gray-300">x0 inicial:</label><input type="text" id="bis-x0" value="0.5" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>
-                    <div><label class="block text-[11px] mb-1 text-gray-300">x1 inicial:</label><input type="text" id="bis-x1" value="1.0" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>
-                    <div><label class="block text-[11px] mb-1 text-gray-300">Tolerancia:</label><input type="text" id="bis-tol" value="0.0001" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>
+                    <div><label class="block text-[11px] mb-1 text-gray-300">x0 inicial:</label><input type="text" id="bis-x0" value="2" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>
+                    <div><label class="block text-[11px] mb-1 text-gray-300">x1 inicial:</label><input type="text" id="bis-x1" value="3" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>
+                    <div><label class="block text-[11px] mb-1 text-gray-300">Tolerancia:</label><input type="text" id="bis-tol" value="0.000001" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>
                     <div><label class="block text-[11px] mb-1 text-gray-300">Max Iter:</label><input type="number" id="bis-maxiter" value="100" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2 text-xs font-mono"></div>`;
             }
         }
@@ -550,8 +604,8 @@
 
         async function recomendarMetodo() {
             if (currentTab !== 'biseccion') return;
-            const elA = document.getElementById('bis-a');
-            const elB = document.getElementById('bis-b');
+            const elA = document.getElementById('bis-a') || document.getElementById('bis-x0');
+            const elB = document.getElementById('bis-b') || document.getElementById('bis-x1');
             let payload = {
                 modulo: 'recomendar_metodo',
                 expr: document.getElementById('bis-expr').value,
@@ -567,7 +621,31 @@
                 });
                 const res = await response.json();
                 const box = document.getElementById('result-container');
-                box.innerText = res.status === 'ok' ? res.log : "ERROR: " + res.message;
+                const asesorBox = document.getElementById('asesor-intervalos-box');
+                const asesorBtns = document.getElementById('asesor-intervalos-btns');
+
+                if (res.status === 'ok') {
+                    box.innerText = res.log;
+                    if (res.intervalos && res.intervalos.length > 0) {
+                        asesorBtns.innerHTML = '';
+                        res.intervalos.forEach(itv => {
+                            const btn = document.createElement('button');
+                            btn.className = "bg-purple-800/80 hover:bg-purple-600 text-white text-[11px] font-mono px-2.5 py-1 rounded-lg transition border border-purple-500";
+                            btn.innerText = `[${itv.a}, ${itv.b}] (${itv.tipo})`;
+                            btn.onclick = () => {
+                                aplicarIntervaloSugerido(itv.a, itv.b, itv.x0);
+                                generarGraficaPrevia();
+                            };
+                            asesorBtns.appendChild(btn);
+                        });
+                        asesorBox.classList.remove('hidden');
+                    } else {
+                        asesorBox.classList.add('hidden');
+                    }
+                } else {
+                    box.innerText = "ERROR: " + res.message;
+                    asesorBox.classList.add('hidden');
+                }
             } catch (err) {
                 document.getElementById('result-container').innerText = "Error de conexion: " + err;
             }
@@ -593,17 +671,11 @@
                     body: JSON.stringify(payload)
                 });
                 const res = await response.json();
-                const box = document.getElementById('result-container');
-                if (res.status === 'ok') {
-                    box.innerText = "Grafica infinita lista. Usa la rueda del mouse para hacer zoom o arrastra hacia cualquier lado sin que se corte la curva.";
-                    if (res.grafica) {
-                        if (ultimaGraficaData && ultimaGraficaData.raiz) {
-                            res.grafica.raiz = ultimaGraficaData.raiz;
-                        }
-                        renderizarGraficaBiseccion(res.grafica);
-                    }
-                } else {
-                    box.innerText = "ERROR: " + res.message;
+                if (res.status === 'ok' && res.grafica) {
+                    res.grafica.raiz = null;
+                    renderizarGraficaBiseccion(res.grafica);
+                } else if (res.status !== 'ok') {
+                    document.getElementById('result-container').innerText = "ERROR: " + res.message;
                 }
             } catch (err) {
                 document.getElementById('result-container').innerText = "Error de conexion: " + err;
@@ -715,18 +787,19 @@
             let xMinAuto = dataGrafica.x_min;
             let xMaxAuto = dataGrafica.x_max;
 
-            let puntos = generarPuntosInfinitos(exprActual, xMinAuto, xMaxAuto, 450);
+            let puntos = generarPuntosInfinitos(exprActual, xMinAuto, xMaxAuto, 500);
             if (puntos.length === 0) {
                 puntos = dataGrafica.puntos || [];
             }
 
-            let yMinAuto = -1;
-            let yMaxAuto = 1;
-            if (puntos.length > 0) {
-                const ys = puntos.map(p => p.y);
-                const minY = Math.min(...ys, 0);
-                const maxY = Math.max(...ys, 0);
-                const margenY = (maxY - minY) * 0.2 || 0.5;
+            let yMinAuto = -2;
+            let yMaxAuto = 2;
+            const puntosValidos = puntos.filter(p => p.y !== null && Number.isFinite(p.y));
+            if (puntosValidos.length > 0) {
+                const ys = puntosValidos.map(p => p.y);
+                const minY = Math.max(Math.min(...ys, 0), -30);
+                const maxY = Math.min(Math.max(...ys, 0), 30);
+                const margenY = (maxY - minY) * 0.2 || 1.0;
                 yMinAuto = minY - margenY;
                 yMaxAuto = maxY + margenY;
             }
@@ -820,7 +893,8 @@
                             borderWidth: 3,
                             pointRadius: 0,
                             pointHoverRadius: 5,
-                            tension: 0.15
+                            spanGaps: false,
+                            tension: 0.1
                         },
                         {
                             label: dataGrafica.raiz ? `Raiz (${dataGrafica.raiz.x})` : 'Raiz Hallada',
@@ -878,8 +952,8 @@
                         },
                         tooltip: {
                             callbacks: {
-                                title: (items) => 'x = ' + Number(items[0].parsed.x).toFixed(4),
-                                label: (item) => item.dataset.label + ': ' + Number(item.parsed.y).toFixed(4)
+                                title: (items) => 'x = ' + Number(items[0].parsed.x).toFixed(6),
+                                label: (item) => item.parsed.y !== null ? item.dataset.label + ': ' + Number(item.parsed.y).toFixed(6) : 'Asintota'
                             }
                         },
                         annotation: {
