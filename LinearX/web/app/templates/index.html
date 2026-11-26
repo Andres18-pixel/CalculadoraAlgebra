@@ -32,7 +32,7 @@
             <div class="bg-accentBlue text-white font-black p-2 rounded-xl text-sm tracking-wider shadow-lg">LX</div>
             <div>
                 <h1 class="text-xs font-extrabold tracking-wide text-gray-200">LINEARX ENGINE</h1>
-                <span class="text-[9px] text-blue-400 font-mono tracking-widest uppercase">Modo Examen - Precision Total</span>
+                <span class="text-[9px] text-blue-400 font-mono tracking-widest uppercase">Modo Examen - Cobertura 100% (Ej. 1 - 64)</span>
             </div>
         </div>
         <div class="flex items-center space-x-4">
@@ -61,13 +61,13 @@
                 </div>
 
                 <div onclick="seleccionarModulo('matrices')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group">
-                    <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 02</span>
-                    <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Algebra de Matrices (Cuadricula)</h3>
-                    <p class="text-xs text-gray-400">Suma, resta, multiplicacion matricial y escalar por celdas visuales.</p>
+                    <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 02 • Parte VI</span>
+                    <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Algebra de Matrices (m×n)</h3>
+                    <p class="text-xs text-gray-400">Suma, resta, multiplicacion, escalar y combinaciones αA + βB + γC.</p>
                 </div>
 
                 <div onclick="seleccionarModulo('inversa')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group">
-                    <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 03</span>
+                    <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 03 • Parte II</span>
                     <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Determinante e Inversa (Gauss-Jordan)</h3>
                     <p class="text-xs text-gray-400">Calcula det(A), justifica existencia, halla A^-1 y verifica A·A^-1 = I.</p>
                 </div>
@@ -79,19 +79,31 @@
                 </div>
 
                 <div onclick="seleccionarModulo('ecuaciones')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group">
-                    <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 05</span>
-                    <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Sistemas de Ecuaciones (A·X = B)</h3>
-                    <p class="text-xs text-gray-400">Planteamiento A·X=B, unicidad, Gauss-Jordan/Cramer y verificacion.</p>
+                    <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 05 • Parte I</span>
+                    <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Sistemas Cuadrados (n×n, Fracciones)</h3>
+                    <p class="text-xs text-gray-400">Hasta 5×5 con fracciones (1/2, 3/5), unicidad, Gauss-Jordan y Cramer.</p>
                 </div>
 
                 <div onclick="seleccionarModulo('biseccion')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group">
-                    <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 06</span>
+                    <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 06 • Partes III y IV</span>
                     <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Metodos de Raices (Cerrados y Abiertos)</h3>
-                    <p class="text-xs text-gray-400">Biseccion, Regla Falsa, Newton-Raphson y Secante a 8 cifras (10^-6).</p>
+                    <p class="text-xs text-gray-400">Biseccion, Regla Falsa, Newton-Raphson y Secante + analisis de dominio.</p>
                 </div>
 
-                <div onclick="seleccionarModulo('romanos')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group md:col-span-2 lg:col-span-1">
-                    <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 07</span>
+                <div onclick="seleccionarModulo('sistemas_rectangulares')" class="bg-darkPanel border border-darkBorder hover:border-emerald-500 p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group">
+                    <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">Modulo 07 • Parte V</span>
+                    <h3 class="text-sm font-bold text-gray-200 group-hover:text-emerald-400 transition">Sistemas Rectangulares (m×n)</h3>
+                    <p class="text-xs text-gray-400">Gauss-Jordan RREF, clasificacion, contradicciones y variables libres.</p>
+                </div>
+
+                <div onclick="seleccionarModulo('independencia_lineal')" class="bg-darkPanel border border-darkBorder hover:border-emerald-500 p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group">
+                    <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">Modulo 08 • Parte VII</span>
+                    <h3 class="text-sm font-bold text-gray-200 group-hover:text-emerald-400 transition">Independencia Lineal (Vectores R^n)</h3>
+                    <p class="text-xs text-gray-400">Determina LI/LD por rango, relacion no trivial y combinacion lineal.</p>
+                </div>
+
+                <div onclick="seleccionarModulo('romanos')" class="bg-darkPanel border border-darkBorder hover:border-accentBlue p-6 rounded-2xl cursor-pointer transition shadow-xl space-y-2 group">
+                    <span class="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Modulo 09</span>
                     <h3 class="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition">Conversor Romanos</h3>
                     <p class="text-xs text-gray-400">Traduccion bidireccional entre sistemas numericos arabigos y romanos.</p>
                 </div>
@@ -138,7 +150,7 @@
                     <canvas id="biseccionChart"></canvas>
                 </div>
 
-                <div id="result-container" class="flex-1 bg-black/50 border border-darkBorder rounded-xl p-4 font-mono text-xs overflow-auto max-h-[460px] whitespace-pre-wrap text-green-400 shadow-inner">
+                <div id="result-container" class="flex-1 bg-black/50 border border-darkBorder rounded-xl p-4 font-mono text-xs overflow-auto max-h-[520px] whitespace-pre-wrap text-green-400 shadow-inner">
                     Esperando ejecucion de datos...
                 </div>
             </div>
@@ -208,9 +220,17 @@
         function compilarFuncionJS(exprStr) {
             let e = exprStr.trim()
                 .replace(/−/g, '-')
+                .replace(/–/g, '-')
                 .replace(/·/g, '*')
+                .replace(/×/g, '*')
+                .replace(/²/g, '**2')
+                .replace(/³/g, '**3')
+                .replace(/⁴/g, '**4')
                 .replace(/X/g, 'x')
                 .replace(/\^/g, '**');
+            e = e.replace(/\bsen\b/gi, 'sin');
+            e = e.replace(/\be\s*\(/g, 'exp(');
+            e = e.replace(/([a-zA-Z0-9\)])\.([a-zA-Z\(])/g, '$1*$2');
             e = e.replace(/\b(sin|cos|tan|ln|log|sqrt|exp)x\b/g, '$1(x)');
 
             e = e.replace(/\bln\b/g, '__LN__')
@@ -294,20 +314,23 @@
             return Array.from({ length: n }, (_, i) => `x${i + 1}`);
         }
 
-        function crearHTMLCuadricula(prefix, filas, cols, valoresDefecto = null, encabezadosCol = null) {
+        // Usamos type="text" en celdas para soportar fracciones como 1/2, -3/5 o decimales
+        function crearHTMLCuadricula(prefix, filas, cols, valoresDefecto = null, encabezadosCol = null, defaultZero = false) {
             let html = `<div class="overflow-x-auto bg-black/30 p-3 rounded-xl border border-darkBorder inline-block max-w-full">`;
             if (encabezadosCol && encabezadosCol.length === cols) {
                 html += `<div class="flex space-x-1.5 mb-1.5">`;
                 for (let j = 0; j < cols; j++) {
-                    html += `<div class="w-16 text-center text-[11px] font-mono font-bold text-blue-400 uppercase">${encabezadosCol[j]}</div>`;
+                    html += `<div class="w-16 text-center text-[11px] font-mono font-bold text-blue-400">${encabezadosCol[j]}</div>`;
                 }
                 html += `</div>`;
             }
             for (let i = 0; i < filas; i++) {
                 html += `<div class="flex space-x-1.5 mb-1.5 last:mb-0">`;
                 for (let j = 0; j < cols; j++) {
-                    let val = (valoresDefecto && valoresDefecto[i] && valoresDefecto[i][j] !== undefined) ? valoresDefecto[i][j] : (i === j ? 1 : 0);
-                    html += `<input type="number" step="any" id="${prefix}-${i}-${j}" value="${val}" class="w-16 bg-darkBg border border-darkBorder focus:border-blue-500 rounded-lg px-2 py-1.5 text-xs font-mono text-center text-gray-100">`;
+                    let val = (valoresDefecto && valoresDefecto[i] && valoresDefecto[i][j] !== undefined)
+                        ? valoresDefecto[i][j]
+                        : (defaultZero ? 0 : (i === j ? 1 : 0));
+                    html += `<input type="text" id="${prefix}-${i}-${j}" value="${val}" class="w-16 bg-darkBg border border-darkBorder focus:border-blue-500 rounded-lg px-2 py-1.5 text-xs font-mono text-center text-gray-100">`;
                 }
                 html += `</div>`;
             }
@@ -321,7 +344,8 @@
                 let fila = [];
                 for (let j = 0; j < cols; j++) {
                     let el = document.getElementById(`${prefix}-${i}-${j}`);
-                    fila.push(el && el.value !== '' ? parseFloat(el.value) : 0);
+                    let raw = el ? el.value.trim() : '0';
+                    fila.push(raw !== '' ? raw : '0');
                 }
                 M.push(fila);
             }
@@ -337,10 +361,21 @@
 
             const contA = document.getElementById('grid-mat-a');
             const contB = document.getElementById('grid-mat-b');
+            const contC = document.getElementById('grid-mat-c');
+            const escalaresBox = document.getElementById('mat-escalares-box');
+
             contA.innerHTML = `<label class="block text-xs mb-1.5 text-gray-300 font-semibold">Matriz A (${fa}x${ca}):</label>` + crearHTMLCuadricula('mata', fa, ca);
+            contC.innerHTML = '';
+            escalaresBox.classList.add('hidden');
 
             if (op === 'escalar') {
-                contB.innerHTML = `<label class="block text-xs mb-1 text-gray-300 font-semibold">Escalar k:</label><input type="number" step="any" id="mat-k" value="2" class="w-32 bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">`;
+                contB.innerHTML = `<label class="block text-xs mb-1 text-gray-300 font-semibold">Escalar k:</label><input type="text" id="mat-k" value="2" class="w-32 bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">`;
+            } else if (op === 'combinacion_lineal') {
+                document.getElementById('mat-fb').value = fa;
+                document.getElementById('mat-cb').value = ca;
+                escalaresBox.classList.remove('hidden');
+                contB.innerHTML = `<label class="block text-xs mb-1.5 text-gray-300 font-semibold">Matriz B (${fa}x${ca}):</label>` + crearHTMLCuadricula('matb', fa, ca);
+                contC.innerHTML = `<label class="block text-xs mb-1.5 text-amber-400 font-semibold">Matriz C (${fa}x${ca}) (opcional si γ = 0):</label>` + crearHTMLCuadricula('matc', fa, ca, null, null, true);
             } else {
                 let fB = (op === 'multiplicacion') ? fb : fa;
                 let cB = (op === 'multiplicacion') ? cb : ca;
@@ -363,13 +398,49 @@
                 html += `<div class="mb-1.5 text-center text-[11px] font-mono font-bold text-amber-400">B</div>`;
                 for (let i = 0; i < n; i++) {
                     const valB = (valoresB && valoresB[i] !== undefined) ? valoresB[i] : (i + 1);
-                    html += `<div class="mb-1.5 last:mb-0"><input type="number" step="any" id="ecb-${i}" value="${valB}" class="w-16 bg-darkBg border border-amber-900/60 focus:border-amber-500 rounded-lg px-2 py-1.5 text-xs font-mono text-center text-amber-200"></div>`;
+                    html += `<div class="mb-1.5 last:mb-0"><input type="text" id="ecb-${i}" value="${valB}" class="w-16 bg-darkBg border border-amber-900/60 focus:border-amber-500 rounded-lg px-2 py-1.5 text-xs font-mono text-center text-amber-200"></div>`;
                 }
                 html += `</div></div></div>`;
                 cont.innerHTML = html;
             } else {
                 cont.innerHTML = `<label class="block text-xs mb-1.5 text-gray-300 font-semibold">Matriz A (${n}x${n}):</label>` + crearHTMLCuadricula(`${tipo}a`, n, n, valoresA);
             }
+        }
+
+        function generarCuadriculaRectangular() {
+            const m = parseInt(document.getElementById('rect-m').value);
+            const n = parseInt(document.getElementById('rect-n').value);
+            const vars = Array.from({ length: n }, (_, i) => `x${i + 1}`);
+            const cont = document.getElementById('grid-rect');
+
+            let html = `<div class="flex flex-wrap items-start gap-4">`;
+            html += `<div><label class="block text-xs mb-1.5 text-gray-300 font-semibold">Matriz Coeficientes A (${m}x${n}):</label>` + crearHTMLCuadricula('recta', m, n, null, vars, true) + `</div>`;
+            html += `<div><label class="block text-xs mb-1.5 text-emerald-400 font-semibold">Vector B (=):</label><div class="bg-black/30 p-3 rounded-xl border border-darkBorder">`;
+            html += `<div class="mb-1.5 text-center text-[11px] font-mono font-bold text-emerald-400">B</div>`;
+            for (let i = 0; i < m; i++) {
+                html += `<div class="mb-1.5 last:mb-0"><input type="text" id="rectb-${i}" value="0" class="w-16 bg-darkBg border border-emerald-900/60 focus:border-emerald-500 rounded-lg px-2 py-1.5 text-xs font-mono text-center text-emerald-200"></div>`;
+            }
+            html += `</div></div></div>`;
+            cont.innerHTML = html;
+        }
+
+        function generarCuadriculaVectoresLI() {
+            const k = parseInt(document.getElementById('li-k').value);
+            const dim = parseInt(document.getElementById('li-dim').value);
+            const cont = document.getElementById('grid-li');
+
+            let html = `<div class="space-y-2">`;
+            for (let i = 0; i < k; i++) {
+                html += `<div class="flex items-center space-x-2 bg-black/30 p-2.5 rounded-xl border border-darkBorder">`;
+                html += `<span class="text-xs font-mono font-bold text-emerald-400 w-10">v${i+1} =</span>`;
+                for (let j = 0; j < dim; j++) {
+                    const defVal = (i === j) ? 1 : 0;
+                    html += `<input type="text" id="liv-${i}-${j}" value="${defVal}" class="w-16 bg-darkBg border border-darkBorder focus:border-emerald-500 rounded-lg px-2 py-1.5 text-xs font-mono text-center text-gray-100">`;
+                }
+                html += `</div>`;
+            }
+            html += `</div>`;
+            cont.innerHTML = html;
         }
 
         function aplicarIntervaloSugerido(a, b, x0) {
@@ -434,11 +505,12 @@
                     <div id="vec-inputs-dinamicos" class="space-y-3"></div>`;
                 actualizarCamposVectores();
             } else if (currentTab === 'matrices') {
-                title.innerText = "Modulo 02 - Algebra de Matrices";
+                title.innerText = "Modulo 02 - Algebra de Matrices (Rectangulares y Cuadradas)";
                 container.innerHTML = `
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div><label class="block text-xs font-semibold mb-1 text-gray-300">Operacion:</label>
                         <select id="mat-op" onchange="generarCuadriculasMatrices()" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs text-gray-200">
+                            <option value="combinacion_lineal">Combinacion Lineal (αA + βB + γC)</option>
                             <option value="suma">Suma (A + B)</option>
                             <option value="resta">Resta (A - B)</option>
                             <option value="multiplicacion">Multiplicacion (A · B)</option>
@@ -446,13 +518,19 @@
                         </select></div>
                         <div class="grid grid-cols-4 gap-1.5">
                             <div><label class="block text-[10px] text-gray-400">Fil A:</label><input type="number" id="mat-fa" value="2" min="1" max="6" onchange="generarCuadriculasMatrices()" class="w-full bg-darkBg border border-darkBorder rounded-lg p-2 text-xs font-mono"></div>
-                            <div><label class="block text-[10px] text-gray-400">Col A:</label><input type="number" id="mat-ca" value="2" min="1" max="6" onchange="generarCuadriculasMatrices()" class="w-full bg-darkBg border border-darkBorder rounded-lg p-2 text-xs font-mono"></div>
+                            <div><label class="block text-[10px] text-gray-400">Col A:</label><input type="number" id="mat-ca" value="3" min="1" max="6" onchange="generarCuadriculasMatrices()" class="w-full bg-darkBg border border-darkBorder rounded-lg p-2 text-xs font-mono"></div>
                             <div><label class="block text-[10px] text-gray-400">Fil B:</label><input type="number" id="mat-fb" value="2" min="1" max="6" onchange="generarCuadriculasMatrices()" class="w-full bg-darkBg border border-darkBorder rounded-lg p-2 text-xs font-mono"></div>
-                            <div><label class="block text-[10px] text-gray-400">Col B:</label><input type="number" id="mat-cb" value="2" min="1" max="6" onchange="generarCuadriculasMatrices()" class="w-full bg-darkBg border border-darkBorder rounded-lg p-2 text-xs font-mono"></div>
+                            <div><label class="block text-[10px] text-gray-400">Col B:</label><input type="number" id="mat-cb" value="3" min="1" max="6" onchange="generarCuadriculasMatrices()" class="w-full bg-darkBg border border-darkBorder rounded-lg p-2 text-xs font-mono"></div>
                         </div>
                     </div>
+                    <div id="mat-escalares-box" class="grid grid-cols-3 gap-2 bg-black/30 p-3 rounded-xl border border-darkBorder">
+                        <div><label class="block text-[10px] text-blue-400 font-mono">Escalar α (para A):</label><input type="text" id="mat-alpha" value="1" class="w-full bg-darkBg border border-darkBorder rounded-lg p-1.5 text-xs font-mono text-center"></div>
+                        <div><label class="block text-[10px] text-blue-400 font-mono">Escalar β (para B):</label><input type="text" id="mat-beta" value="1" class="w-full bg-darkBg border border-darkBorder rounded-lg p-1.5 text-xs font-mono text-center"></div>
+                        <div><label class="block text-[10px] text-amber-400 font-mono">Escalar γ (para C):</label><input type="text" id="mat-gamma" value="0" class="w-full bg-darkBg border border-darkBorder rounded-lg p-1.5 text-xs font-mono text-center"></div>
+                    </div>
                     <div id="grid-mat-a"></div>
-                    <div id="grid-mat-b"></div>`;
+                    <div id="grid-mat-b"></div>
+                    <div id="grid-mat-c"></div>`;
                 generarCuadriculasMatrices();
             } else if (currentTab === 'inversa') {
                 title.innerText = "Modulo 03 - Determinante e Inversa (Gauss-Jordan)";
@@ -484,7 +562,7 @@
                     <div id="grid-det"></div>`;
                 generarCuadriculaCuadrada('det');
             } else if (currentTab === 'ecuaciones') {
-                title.innerText = "Modulo 05 - Sistemas de Ecuaciones (A·X = B)";
+                title.innerText = "Modulo 05 - Sistemas de Ecuaciones Cuadrados (A·X = B)";
                 container.innerHTML = `
                     <div class="grid grid-cols-2 gap-3">
                         <div><label class="block text-xs font-semibold mb-1 text-gray-300">Metodo:</label>
@@ -494,11 +572,60 @@
                         </select></div>
                         <div><label class="block text-xs font-semibold mb-1 text-gray-300">Incognitas (n):</label>
                         <select id="ec-n" onchange="generarCuadriculaCuadrada('ec')" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">
-                            <option value="2">2 ecuaciones (x, y)</option><option value="3">3 ecuaciones (x, y, z)</option><option value="4" selected>4 ecuaciones (x, y, z, w)</option>
+                            <option value="2">2 ecuaciones (x, y)</option>
+                            <option value="3">3 ecuaciones (x, y, z)</option>
+                            <option value="4" selected>4 ecuaciones (x, y, z, w)</option>
+                            <option value="5">5 ecuaciones (x1..x5)</option>
                         </select></div>
                     </div>
+                    <p class="text-[11px] text-gray-400 font-mono">Tip: Puedes escribir fracciones directo en las celdas (ej. 1/2, -3/5, 2/3).</p>
                     <div id="grid-ec"></div>`;
                 generarCuadriculaCuadrada('ec');
+            } else if (currentTab === 'sistemas_rectangulares') {
+                title.innerText = "Modulo 07 - Sistemas Rectangulares (m Ecuaciones × n Incognitas)";
+                container.innerHTML = `
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="block text-xs font-semibold mb-1 text-gray-300">Numero de Ecuaciones (m):</label>
+                        <select id="rect-m" onchange="generarCuadriculaRectangular()" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">
+                            <option value="2">2 ecuaciones</option>
+                            <option value="3" selected>3 ecuaciones</option>
+                            <option value="4">4 ecuaciones</option>
+                            <option value="5">5 ecuaciones</option>
+                            <option value="6">6 ecuaciones</option>
+                        </select></div>
+                        <div><label class="block text-xs font-semibold mb-1 text-gray-300">Numero de Incognitas (n):</label>
+                        <select id="rect-n" onchange="generarCuadriculaRectangular()" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">
+                            <option value="2">2 incognitas (x1, x2)</option>
+                            <option value="3">3 incognitas (x1..x3)</option>
+                            <option value="4" selected>4 incognitas (x1..x4)</option>
+                            <option value="5">5 incognitas (x1..x5)</option>
+                        </select></div>
+                    </div>
+                    <p class="text-[11px] text-emerald-400/80 font-mono">Resuelve por Gauss-Jordan RREF exacto, detecta inconsistencias o despeja variables libres.</p>
+                    <div id="grid-rect"></div>`;
+                generarCuadriculaRectangular();
+            } else if (currentTab === 'independencia_lineal') {
+                title.innerText = "Modulo 08 - Independencia Lineal de Vectores en R^n";
+                container.innerHTML = `
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="block text-xs font-semibold mb-1 text-gray-300">Cantidad de Vectores (k):</label>
+                        <select id="li-k" onchange="generarCuadriculaVectoresLI()" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">
+                            <option value="2">2 vectores (v1, v2)</option>
+                            <option value="3" selected>3 vectores (v1..v3)</option>
+                            <option value="4">4 vectores (v1..v4)</option>
+                            <option value="5">5 vectores (v1..v5)</option>
+                        </select></div>
+                        <div><label class="block text-xs font-semibold mb-1 text-gray-300">Dimension del Espacio (R^n):</label>
+                        <select id="li-dim" onchange="generarCuadriculaVectoresLI()" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">
+                            <option value="2">R^2 (2 componentes)</option>
+                            <option value="3" selected>R^3 (3 componentes)</option>
+                            <option value="4">R^4 (4 componentes)</option>
+                            <option value="5">R^5 (5 componentes)</option>
+                        </select></div>
+                    </div>
+                    <p class="text-[11px] text-emerald-400/80 font-mono">Coloca los vectores como columnas, reduce por filas y obtiene la relacion de dependencia.</p>
+                    <div id="grid-li"></div>`;
+                generarCuadriculaVectoresLI();
             } else if (currentTab === 'biseccion') {
                 title.innerText = "Modulo 06 - Metodos de Raices (Cerrados y Abiertos)";
                 container.innerHTML = `
@@ -516,7 +643,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs mb-1 font-semibold text-gray-300">Funcion f(x):</label>
+                        <label class="block text-xs mb-1 font-semibold text-gray-300">Funcion f(x) (despejada a = 0):</label>
                         <input type="text" id="bis-expr" value="x**3 - 4*x - 9" placeholder="Ej. x**3 - 4*x - 9" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs font-mono">
                     </div>
                     
@@ -547,7 +674,7 @@
                     <div id="parametros-inputs" class="grid grid-cols-4 gap-2"></div>`;
                 actualizarCamposMetodoRaices();
             } else if (currentTab === 'romanos') {
-                title.innerText = "Modulo 07 - Numeros Romanos";
+                title.innerText = "Modulo 09 - Numeros Romanos";
                 container.innerHTML = `
                     <div><label class="block text-xs font-semibold mb-1 text-gray-300">Modo:</label>
                     <select id="rom-modo" onchange="limpiarResultadosPrevios()" class="w-full bg-darkBg border border-darkBorder rounded-xl p-2.5 text-xs text-gray-200">
@@ -695,8 +822,8 @@
                 const op = document.getElementById('vec-op').value;
                 payload.op = op;
                 if (op === 'combinacion') {
-                    payload.vecs = document.getElementById('vec-lista').value.split(';').map(v => v.split(',').map(Number));
-                    payload.b = document.getElementById('vec-obj').value.split(',').map(Number);
+                    payload.vecs = document.getElementById('vec-lista').value.split(';').map(v => v.split(',').map(s => s.trim()));
+                    payload.b = document.getElementById('vec-obj').value.split(',').map(s => s.trim());
                 } else if (op === 'escalar') {
                     payload.k = parseFloat(document.getElementById('vec-k').value);
                     payload.v = document.getElementById('vec-v').value.split(',').map(Number);
@@ -713,7 +840,13 @@
                 payload.op = op;
                 payload.A = leerCuadricula('mata', fa, ca);
                 if (op === 'escalar') {
-                    payload.k = parseFloat(document.getElementById('mat-k').value);
+                    payload.k = document.getElementById('mat-k').value;
+                } else if (op === 'combinacion_lineal') {
+                    payload.B = leerCuadricula('matb', fa, ca);
+                    payload.C = leerCuadricula('matc', fa, ca);
+                    payload.alpha = document.getElementById('mat-alpha').value || '1';
+                    payload.beta = document.getElementById('mat-beta').value || '1';
+                    payload.gamma = document.getElementById('mat-gamma').value || '0';
                 } else {
                     payload.B = leerCuadricula('matb', fb, cb);
                 }
@@ -731,9 +864,22 @@
                 payload.A = leerCuadricula('eca', n, n);
                 let b = [];
                 for (let i = 0; i < n; i++) {
-                    b.push(parseFloat(document.getElementById(`ecb-${i}`).value || 0));
+                    b.push(document.getElementById(`ecb-${i}`).value.trim() || '0');
                 }
                 payload.b = b;
+            } else if (currentTab === 'sistemas_rectangulares') {
+                const m = parseInt(document.getElementById('rect-m').value);
+                const n = parseInt(document.getElementById('rect-n').value);
+                payload.A = leerCuadricula('recta', m, n);
+                let b = [];
+                for (let i = 0; i < m; i++) {
+                    b.push(document.getElementById(`rectb-${i}`).value.trim() || '0');
+                }
+                payload.b = b;
+            } else if (currentTab === 'independencia_lineal') {
+                const k = parseInt(document.getElementById('li-k').value);
+                const dim = parseInt(document.getElementById('li-dim').value);
+                payload.vecs = leerCuadricula('liv', k, dim);
             } else if (currentTab === 'biseccion') {
                 let submetodo = document.getElementById('bis-metodo').value;
                 payload.expr = document.getElementById('bis-expr').value;

@@ -1,13 +1,13 @@
-import json
 import sys
-import os
+from pathlib import Path
+import json
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-if BASE_DIR not in sys.path:
-    sys.path.append(BASE_DIR)
+RUTA_LINEARX = Path(__file__).resolve().parents[2]
+if str(RUTA_LINEARX) not in sys.path:
+    sys.path.insert(0, str(RUTA_LINEARX))
 
 from core.motor import MotorAlgebra
 
@@ -16,180 +16,176 @@ def index(request):
     return render(request, 'index.html')
 
 
+def _parse_float_opt(val):
+    if val is None:
+        return None
+    s = str(val).strip()
+    if not s:
+        return None
+    return float(s)
+
+
 @csrf_exempt
 def calcular_api(request):
     if request.method != 'POST':
-        return JsonResponse({'status': 'error', 'message': 'Metodo no permitido'}, status=405)
+        return JsonResponse({'status': 'error', 'message': 'Metodo HTTP no permitido. Use POST.'}, status=405)
 
     try:
         data = json.loads(request.body.decode('utf-8'))
         modulo = data.get('modulo')
 
+        # ==================== MODULO 01: VECTORES ====================
         if modulo == 'vectores':
             op = data.get('op')
-            if op in ['suma', 'resta']:
-                u = [float(x) for x in data.get('u', [])]
-                v = [float(x) for x in data.get('v', [])]
-                out = MotorAlgebra.sumar_vectores(u, v) if op == 'suma' else MotorAlgebra.restar_vectores(u, v)
-                return JsonResponse({'status': 'ok', 'resultado': out['resultado'], 'log': out['log']})
+            if op == 'suma':
+                res = MotorAlgebra.sumar_vectores(data.get('u', []), data.get('v', []))
+            elif op == 'resta':
+                res = MotorAlgebra.restar_vectores(data.get('u', []), data.get('v', []))
             elif op == 'escalar':
-                k = float(data.get('k', 1))
-                v = [float(x) for x in data.get('v', [])]
-                out = MotorAlgebra.escalar_vector(k, v)
-                return JsonResponse({'status': 'ok', 'resultado': out['resultado'], 'log': out['log']})
+                res = MotorAlgebra.escalar_vector(float(data.get('k', 1)), data.get('v', []))
             elif op == 'punto':
-                u = [float(x) for x in data.get('u', [])]
-                v = [float(x) for x in data.get('v', [])]
-                out = MotorAlgebra.producto_punto(u, v)
-                return JsonResponse({'status': 'ok', 'resultado': out['resultado'], 'log': out['log']})
+                res = MotorAlgebra.producto_punto(data.get('u', []), data.get('v', []))
             elif op == 'combinacion':
-                vecs = [[float(x) for x in sub] for sub in data.get('vecs', [])]
-                b = [float(x) for x in data.get('b', [])]
-                out = MotorAlgebra.combinacion_lineal(vecs, b)
-                return JsonResponse({'status': 'ok', 'log': out['log'], 'sol': out.get('sol')})
+                res = MotorAlgebra.combinacion_lineal(data.get('vecs', []), data.get('b', []))
+            else:
+                raise ValueError(f"Operacion de vectores no reconocida: {op}")
+            return JsonResponse({'status': 'ok', **res})
 
+        # ==================== MODULO 02: ALGEBRA DE MATRICES ====================
         elif modulo == 'matrices':
             op = data.get('op')
-            A = [[float(x) for x in fila] for fila in data.get('A', [])]
-            if op == 'escalar':
-                k = float(data.get('k', 1))
-                out = MotorAlgebra.escalar_matriz(k, A)
+            if op == 'combinacion_lineal':
+                res = MotorAlgebra.combinacion_matrices(
+                    data.get('A'),
+                    data.get('B'),
+                    data.get('C'),
+                    data.get('alpha', 1),
+                    data.get('beta', 1),
+                    data.get('gamma', 0)
+                )
+            elif op == 'suma':
+                res = MotorAlgebra.sumar_matrices(data.get('A'), data.get('B'))
+            elif op == 'resta':
+                res = MotorAlgebra.restar_matrices(data.get('A'), data.get('B'))
+            elif op == 'multiplicacion':
+                res = MotorAlgebra.multiplicar_matrices(data.get('A'), data.get('B'))
+            elif op == 'escalar':
+                res = MotorAlgebra.escalar_matriz(data.get('k', 1), data.get('A'))
             else:
-                B = [[float(x) for x in fila] for fila in data.get('B', [])]
-                if op == 'suma':
-                    out = MotorAlgebra.sumar_matrices(A, B)
-                elif op == 'resta':
-                    out = MotorAlgebra.restar_matrices(A, B)
-                elif op == 'multiplicacion':
-                    out = MotorAlgebra.multiplicar_matrices(A, B)
-            return JsonResponse({'status': 'ok', 'resultado': out['resultado'], 'log': out['log']})
+                raise ValueError(f"Operacion de matrices no reconocida: {op}")
+            return JsonResponse({'status': 'ok', **res})
 
+        # ==================== MODULO 03: INVERSA Y DETERMINANTE ====================
         elif modulo == 'inversa':
-            A = [[float(x) for x in fila] for fila in data.get('A', [])]
-            pasos = data.get('pasos', True)
-            out = MotorAlgebra.inversa_gauss_jordan(A, mostrar_pasos=pasos)
-            return JsonResponse({
-                'status': 'ok',
-                'existe': out['existe'],
-                'determinante': out.get('determinante'),
-                'inversa': out['inversa'],
-                'comprobacion': out['comprobacion'],
-                'log': out['log']
-            })
+            A = data.get('A')
+            pasos = bool(data.get('pasos', True))
+            res = MotorAlgebra.inversa_gauss_jordan(A, mostrar_pasos=pasos)
+            return JsonResponse({'status': 'ok', **res})
 
+        # ==================== MODULO 04: DETERMINANTES ====================
         elif modulo == 'determinantes':
-            A = [[float(x) for x in fila] for fila in data.get('A', [])]
             metodo = data.get('metodo', 'lu')
-            pasos = data.get('pasos', True)
-
+            A = data.get('A')
             if metodo == 'lu':
-                out = MotorAlgebra.determinante_lu(A, mostrar_pasos=pasos)
+                res = MotorAlgebra.determinante_lu(A)
             elif metodo == 'cofactores':
-                out = MotorAlgebra.determinante_cofactores(A, mostrar_pasos=pasos)
+                res = MotorAlgebra.determinante_cofactores(A)
             elif metodo == 'sarrus':
-                out = MotorAlgebra.determinante_sarrus(A, mostrar_pasos=pasos)
-
-            return JsonResponse({'status': 'ok', 'determinante': out['determinante'], 'log': out['log']})
-
-        elif modulo == 'ecuaciones':
-            A = [[float(x) for x in fila] for fila in data.get('A', [])]
-            b = [float(x) for x in data.get('b', [])]
-            metodo = data.get('metodo', 'gauss')
-
-            if metodo == 'gauss':
-                out = MotorAlgebra.gauss_jordan(A, b)
+                res = MotorAlgebra.determinante_sarrus(A)
             else:
-                out = MotorAlgebra.cramer(A, b)
+                raise ValueError(f"Metodo de determinante no reconocido: {metodo}")
+            return JsonResponse({'status': 'ok', **res})
 
-            return JsonResponse({'status': 'ok', 'estado': out['estado'], 'sol': out.get('sol'), 'log': out['log']})
+        # ==================== MODULO 05: SISTEMAS CUADRADOS ====================
+        elif modulo == 'ecuaciones':
+            metodo = data.get('metodo', 'gauss')
+            A = data.get('A')
+            b = data.get('b')
+            if metodo == 'gauss':
+                res = MotorAlgebra.gauss_jordan(A, b)
+            elif metodo == 'cramer':
+                res = MotorAlgebra.cramer(A, b)
+            else:
+                raise ValueError(f"Metodo de sistema lineal no reconocido: {metodo}")
+            return JsonResponse({'status': 'ok', **res})
 
+        # ==================== MODULO 06: RAICES Y ASESOR ====================
         elif modulo == 'recomendar_metodo':
             expr = data.get('expr', '')
-            raw_a = data.get('a')
-            raw_b = data.get('b')
-            a = float(raw_a) if raw_a not in [None, ''] else None
-            b = float(raw_b) if raw_b not in [None, ''] else None
-            out = MotorAlgebra.recomendar_metodo(expr, a, b)
-            return JsonResponse({
-                'status': 'ok',
-                'log': out['log'],
-                'recomendacion': out['recomendacion'],
-                'intervalos': out.get('intervalos', [])
-            })
+            if not expr.strip():
+                raise ValueError("Ingrese una funcion f(x) antes de consultar al asesor.")
+            a = _parse_float_opt(data.get('a'))
+            b = _parse_float_opt(data.get('b'))
+            res = MotorAlgebra.recomendar_metodo(expr, a=a, b=b)
+            return JsonResponse({'status': 'ok', **res})
 
         elif modulo == 'biseccion':
             expr = data.get('expr', '')
+            if not expr.strip():
+                raise ValueError("La expresion f(x) no puede estar vacia.")
+
+            if data.get('solo_grafica'):
+                a = _parse_float_opt(data.get('a'))
+                b = _parse_float_opt(data.get('b'))
+                grafica = MotorAlgebra.generar_grafica_biseccion(expr, a_orig=a, b_orig=b, raiz=None)
+                return JsonResponse({'status': 'ok', 'grafica': grafica})
+
             submetodo = data.get('submetodo', 'biseccion')
-            solo_grafica = data.get('solo_grafica', False)
-            raw_tol = data.get('tol', 1e-6)
-            tol = float(raw_tol) if raw_tol not in [None, ''] else 1e-6
-            raw_max_iter = data.get('max_iter', 100)
-            max_iter = int(raw_max_iter) if raw_max_iter not in [None, ''] else 100
+            tol = float(data.get('tol', 1e-6))
+            max_iter = int(data.get('max_iter', 100))
 
-            raw_xmin = data.get('x_min')
-            raw_xmax = data.get('x_max')
-            x_min_c = float(raw_xmin) if raw_xmin not in [None, ''] else None
-            x_max_c = float(raw_xmax) if raw_xmax not in [None, ''] else None
-
-            raw_a = data.get('a')
-            raw_b = data.get('b')
-            a_val = float(raw_a) if raw_a not in [None, ''] else None
-            b_val = float(raw_b) if raw_b not in [None, ''] else None
-
-            if solo_grafica:
-                grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, a_val, b_val, None, x_min_c, x_max_c)
-                return JsonResponse({'status': 'ok', 'exito': True, 'grafica': grafica_data})
-
-            if submetodo == 'newton':
-                raw_x0 = data.get('x0')
-                if raw_x0 in [None, '']:
-                    grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, None, None, None, x_min_c, x_max_c)
-                    return JsonResponse({'status': 'ok', 'exito': False, 'filas': [], 'log': "Ingrese el punto inicial x0.", 'grafica': grafica_data})
-                x0 = float(raw_x0)
-                out = MotorAlgebra.metodo_newton_raphson(expr, x0, tol, max_iter)
-                grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, x0, None, out['raiz'], x_min_c, x_max_c)
-
+            if submetodo == 'biseccion':
+                a = float(data.get('a'))
+                b = float(data.get('b'))
+                res = MotorAlgebra.metodo_biseccion(expr, a, b, tol=tol, max_iter=max_iter)
+                grafica = MotorAlgebra.generar_grafica_biseccion(expr, a_orig=a, b_orig=b, raiz=res.get('raiz'))
+            elif submetodo == 'regla_falsa':
+                a = float(data.get('a'))
+                b = float(data.get('b'))
+                res = MotorAlgebra.metodo_regla_falsa(expr, a, b, tol=tol, max_iter=max_iter)
+                grafica = MotorAlgebra.generar_grafica_biseccion(expr, a_orig=a, b_orig=b, raiz=res.get('raiz'))
+            elif submetodo == 'newton':
+                x0 = float(data.get('x0'))
+                res = MotorAlgebra.metodo_newton_raphson(expr, x0, tol=tol, max_iter=max_iter)
+                raiz = res.get('raiz')
+                grafica = MotorAlgebra.generar_grafica_biseccion(expr, a_orig=x0, b_orig=raiz, raiz=raiz)
             elif submetodo == 'secante':
-                raw_x0 = data.get('x0')
-                raw_x1 = data.get('x1')
-                if raw_x0 in [None, ''] or raw_x1 in [None, '']:
-                    grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, None, None, None, x_min_c, x_max_c)
-                    return JsonResponse({'status': 'ok', 'exito': False, 'filas': [], 'log': "Ingrese x0 y x1 iniciales.", 'grafica': grafica_data})
-                x0 = float(raw_x0)
-                x1 = float(raw_x1)
-                out = MotorAlgebra.metodo_secante(expr, x0, x1, tol, max_iter)
-                grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, x0, x1, out['raiz'], x_min_c, x_max_c)
-
+                x0 = float(data.get('x0'))
+                x1 = float(data.get('x1'))
+                res = MotorAlgebra.metodo_secante(expr, x0, x1, tol=tol, max_iter=max_iter)
+                grafica = MotorAlgebra.generar_grafica_biseccion(expr, a_orig=x0, b_orig=x1, raiz=res.get('raiz'))
             else:
-                if a_val is None or b_val is None:
-                    grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, None, None, None, x_min_c, x_max_c)
-                    return JsonResponse({'status': 'ok', 'exito': False, 'filas': [], 'log': "Ingrese 'a' y 'b'.", 'grafica': grafica_data})
+                raise ValueError(f"Metodo numerico no reconocido: {submetodo}")
 
-                if submetodo == 'regla_falsa':
-                    out = MotorAlgebra.metodo_regla_falsa(expr, a_val, b_val, tol, max_iter)
-                else:
-                    out = MotorAlgebra.metodo_biseccion(expr, a_val, b_val, tol, max_iter)
+            return JsonResponse({'status': 'ok', **res, 'grafica': grafica})
 
-                grafica_data = MotorAlgebra.generar_grafica_biseccion(expr, a_val, b_val, out['raiz'], x_min_c, x_max_c)
+        # ==================== MODULO 07: SISTEMAS RECTANGULARES ====================
+        elif modulo == 'sistemas_rectangulares':
+            res = MotorAlgebra.sistema_rectangular(data.get('A'), data.get('b'))
+            return JsonResponse({'status': 'ok', **res})
 
-            return JsonResponse({
-                'status': 'ok',
-                'exito': out['exito'],
-                'filas': out['filas'],
-                'log': out['log'],
-                'grafica': grafica_data
-            })
+        # ==================== MODULO 08: INDEPENDENCIA LINEAL ====================
+        elif modulo == 'independencia_lineal':
+            res = MotorAlgebra.independencia_lineal(data.get('vecs'))
+            return JsonResponse({'status': 'ok', **res})
 
+        # ==================== MODULO 09: ROMANOS ====================
         elif modulo == 'romanos':
-            modo = data.get('modo', 'r2a')
-            val = data.get('val', '').strip()
+            modo = data.get('modo')
+            val = str(data.get('val', '')).strip()
             if modo == 'r2a':
-                res = MotorAlgebra.romano_a_arabico(val)
+                num = MotorAlgebra.romano_a_arabico(val)
+                log = f"CONVERSION ROMANO -> ARABIGO\n• Romano : {val.upper()}\n• Arabigo: {num}"
+                return JsonResponse({'status': 'ok', 'resultado': num, 'log': log})
+            elif modo == 'a2r':
+                rom = MotorAlgebra.arabico_a_romano(int(val))
+                log = f"CONVERSION ARABIGO -> ROMANO\n• Arabigo: {val}\n• Romano : {rom}"
+                return JsonResponse({'status': 'ok', 'resultado': rom, 'log': log})
             else:
-                res = MotorAlgebra.arabico_a_romano(int(val))
-            return JsonResponse({'status': 'ok', 'resultado': res})
+                raise ValueError(f"Modo romano no reconocido: {modo}")
 
-        return JsonResponse({'status': 'error', 'message': 'Modulo no valido'}, status=400)
+        else:
+            return JsonResponse({'status': 'error', 'message': f"Modulo desconocido: {modulo}"}, status=400)
 
-    except Exception as err:
-        return JsonResponse({'status': 'error', 'message': str(err)}, status=400)
+    except Exception as exc:
+        return JsonResponse({'status': 'error', 'message': str(exc)})
